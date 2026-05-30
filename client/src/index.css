@@ -159,7 +159,7 @@
 
   /* Safe Area Padding for Bezel-less Mobile Devices */
   .pt-safe {
-    padding-top: calc(1rem + env(safe-area-inset-top, 0px));
+    padding-top: max(2.75rem, calc(1rem + env(safe-area-inset-top, 0px)));
   }
 
   .pb-safe {

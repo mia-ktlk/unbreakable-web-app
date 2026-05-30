@@ -3094,40 +3094,63 @@ export default function Home() {
       >
         <SheetContent
           side="right"
-          className="bg-[#121214] border-[#c4b396]/15 text-[#F8FAFC] w-full sm:max-w-sm overflow-y-auto flex flex-col px-8 sm:px-10 pb-safe"
+          hideCloseButton={isEditingProfile}
+          showSafeTopPadding={false}
+          className="bg-[#121214] border-[#c4b396]/15 text-[#F8FAFC] w-full sm:max-w-sm overflow-hidden flex flex-col p-0 gap-0"
         >
           {loggedInUser && (
             <>
-              <SheetHeader className="px-0 pt-0 pb-4 border-b border-[#c4b396]/10">
-                <div className="flex items-center gap-4 pr-10">
-                  <MemberAvatar member={loggedInUser} className="h-14 w-14 text-xl" />
-                  <div className="space-y-1 text-left flex-1 min-w-0">
-                    <SheetTitle className="text-white font-serif-luxury text-lg">{loggedInUser.name}</SheetTitle>
-                    <SheetDescription className="text-[#8E9CAE] text-xs">
-                      {loggedInUser.role || loggedInUser.company}
-                    </SheetDescription>
-                  </div>
-                </div>
-              </SheetHeader>
+              <div className="shrink-0 px-8 sm:px-10 pt-safe pb-4 border-b border-[#c4b396]/10">
+                {isEditingProfile ? (
+                  <button
+                    type="button"
+                    onClick={() => setIsEditingProfile(false)}
+                    className="-ml-1 inline-flex items-center gap-0.5 text-[#c4b396] hover:text-white text-xs font-bold uppercase tracking-wider transition-colors py-1"
+                  >
+                    <ChevronLeft className="h-5 w-5" />
+                    Back
+                  </button>
+                ) : (
+                  <SheetHeader className="px-0 pt-0 pb-0 space-y-0">
+                    <div className="flex items-center gap-4 pr-10">
+                      <MemberAvatar member={loggedInUser} className="h-14 w-14 text-xl" />
+                      <div className="space-y-1 text-left flex-1 min-w-0">
+                        <SheetTitle className="text-white font-serif-luxury text-lg">{loggedInUser.name}</SheetTitle>
+                        <SheetDescription className="text-[#8E9CAE] text-xs">
+                          {loggedInUser.role || loggedInUser.company}
+                        </SheetDescription>
+                      </div>
+                    </div>
+                  </SheetHeader>
+                )}
+              </div>
 
-              {!isEditingProfile && isSupabaseConfigured() && (
-                <Button
-                  type="button"
-                  onClick={startEditingProfile}
-                  className="w-full bg-[#c4b396] hover:bg-[#c4b396]/80 text-[#070707] [&_svg]:text-[#070707] h-11 rounded-lg text-xs font-bold uppercase tracking-wider gap-2"
-                >
-                  <Pencil className="h-4 w-4" />
-                  Edit Profile
-                </Button>
-              )}
+              <div className="flex-1 overflow-y-auto overscroll-contain min-h-0 px-8 sm:px-10 pb-safe">
+                <div className="flex flex-col gap-4 py-4">
+                  {!isEditingProfile && isSupabaseConfigured() && (
+                    <Button
+                      type="button"
+                      onClick={startEditingProfile}
+                      className="w-full bg-[#c4b396] hover:bg-[#c4b396]/80 text-[#070707] [&_svg]:text-[#070707] h-11 rounded-lg text-xs font-bold uppercase tracking-wider gap-2"
+                    >
+                      <Pencil className="h-4 w-4" />
+                      Edit Profile
+                    </Button>
+                  )}
 
-              {isEditingProfile ? (
-                <div className="space-y-4 py-2 flex-1">
-                  <p className="text-[10px] text-[#8E9CAE] leading-relaxed">
-                    Update your contact info. Changes are visible when others scan your badge.
-                  </p>
+                  {isEditingProfile ? (
+                    <div className="space-y-4">
+                      <div className="flex items-center gap-4">
+                        <MemberAvatar member={loggedInUser} className="h-12 w-12 text-lg" />
+                        <div className="min-w-0">
+                          <p className="text-white font-serif-luxury text-lg leading-tight">{loggedInUser.name}</p>
+                          <p className="text-[10px] text-[#8E9CAE] leading-relaxed mt-1">
+                            Update your contact info. Changes are visible when others scan your badge.
+                          </p>
+                        </div>
+                      </div>
 
-                  <div className="space-y-3">
+                      <div className="space-y-3">
                     <div className="space-y-2">
                       <Label className="text-[9px] font-bold text-[#8E9CAE] uppercase tracking-wider">
                         Profile Photo
@@ -3323,7 +3346,7 @@ export default function Home() {
                   </div>
                 </div>
               ) : (
-                <div className="space-y-4 py-2 flex-1">
+                <div className="space-y-4">
                   <div className="flex items-center gap-2">
                     <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-[#c4b396]/10 text-[#c4b396] border border-[#c4b396]/20 uppercase tracking-wider">
                       {loggedInUser.type || "attendee"}
@@ -3398,14 +3421,18 @@ export default function Home() {
                 </div>
               )}
 
-              <div className="mt-auto pt-4 border-t border-[#c4b396]/10 px-0">
-                <Button
-                  onClick={logout}
-                  variant="outline"
-                  className="w-full border-red-900/40 text-red-400 hover:bg-red-950/20 hover:text-red-300 h-10 rounded-lg text-xs font-bold uppercase tracking-wider gap-2"
-                >
-                  <LogOut className="h-4 w-4" /> Log Out
-                </Button>
+                  {!isEditingProfile && (
+                    <div className="pt-4 border-t border-[#c4b396]/10">
+                      <Button
+                        onClick={logout}
+                        variant="outline"
+                        className="w-full border-red-900/40 text-red-400 hover:bg-red-950/20 hover:text-red-300 h-10 rounded-lg text-xs font-bold uppercase tracking-wider gap-2"
+                      >
+                        <LogOut className="h-4 w-4" /> Log Out
+                      </Button>
+                    </div>
+                  )}
+                </div>
               </div>
             </>
           )}

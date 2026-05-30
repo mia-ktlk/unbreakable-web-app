@@ -2945,11 +2945,11 @@ export default function Home() {
       >
         <SheetContent
           side="right"
-          className="bg-[#121214] border-[#c4b396]/15 text-[#F8FAFC] w-full sm:max-w-sm overflow-y-auto [&>button]:text-[#8E9CAE] [&>button]:hover:text-white flex flex-col px-8 sm:px-10 pb-8"
+          className="bg-[#121214] border-[#c4b396]/15 text-[#F8FAFC] w-full sm:max-w-sm overflow-y-auto [&>button]:text-[#8E9CAE] [&>button]:hover:text-white flex flex-col px-8 sm:px-10 pb-safe"
         >
           {loggedInUser && (
             <>
-              <SheetHeader className="px-0 pt-2 pb-4 border-b border-[#c4b396]/10">
+              <SheetHeader className="px-0 pt-0 pb-4 border-b border-[#c4b396]/10">
                 <div className="flex items-center gap-4 pr-10">
                   <MemberAvatar member={loggedInUser} className="h-14 w-14 text-xl" />
                   <div className="space-y-1 text-left flex-1 min-w-0">

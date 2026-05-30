@@ -86,6 +86,7 @@ import { isSupabaseConfigured } from "@/lib/supabase";
 import {
   applyProfileOverride,
   fetchProfileOverrides,
+  MAX_PROFILE_PHOTO_BYTES,
   mergeMembersWithOverrides,
   updateProfile,
   uploadProfilePhoto,
@@ -694,8 +695,8 @@ export default function Home() {
       return;
     }
 
-    if (file.size > 2 * 1024 * 1024) {
-      toast.error("Photo must be 2MB or smaller.");
+    if (file.size > MAX_PROFILE_PHOTO_BYTES) {
+      toast.error("Photo must be 10MB or smaller.");
       return;
     }
 

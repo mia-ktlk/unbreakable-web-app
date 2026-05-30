@@ -8,7 +8,7 @@ const corsHeaders = {
   "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
 
-const MAX_FILE_BYTES = 2 * 1024 * 1024;
+const MAX_FILE_BYTES = 10 * 1024 * 1024;
 const ALLOWED_TYPES = new Set(["image/jpeg", "image/png", "image/webp"]);
 
 function jsonResponse(body: Record<string, unknown>, status = 200) {
@@ -61,7 +61,7 @@ Deno.serve(async (req) => {
     }
 
     if (file.size > MAX_FILE_BYTES) {
-      return jsonResponse({ error: "Photo must be 2MB or smaller" }, 400);
+      return jsonResponse({ error: "Photo must be 10MB or smaller" }, 400);
     }
 
     const supabase = createClient(supabaseUrl, serviceRoleKey);

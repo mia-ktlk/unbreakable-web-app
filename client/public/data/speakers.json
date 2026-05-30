@@ -6,6 +6,7 @@
     "company": "The Broken Science Initiative & MetFix",
     "type": "speaker",
     "website": "https://brokenscience.org",
+    "email": "emily@brokenscience.org",
     "image": "https://brokenscience.org/wp-content/uploads/2026/02/speaker-emily-kaplan-3-web-e1772302744477.png",
     "bio": "Emily Kaplan is a journalist and entrepreneur focused on investigating institutional failures in public health, nutrition policy, and scientific integrity. As co-founder of The Broken Science Initiative and MetFix, she works to examine how flawed research, financial conflicts, and regulatory capture have shaped modern dietary guidance and chronic disease outcomes.\n\nKaplan’s work centers on translating complex metabolic health issues into accessible, investigative storytelling while holding powerful institutions accountable.",
     "instagram": "https://www.instagram.com/newsnotnoise/",
@@ -73,6 +74,7 @@
     "role": "Professor of Biology",
     "company": "Boston College",
     "type": "speaker",
+    "email": "thomas.seyfried@bc.edu",
     "image": "https://brokenscience.org/wp-content/uploads/2026/02/speaker-thomas-seyfried-3-web-e1772302568581.png",
     "bio": "Prof. Thomas Seyfried is a professor of biology at Boston College and a leading researcher in cancer metabolism. His work advances the metabolic theory of cancer, proposing that cancer is primarily a mitochondrial metabolic disease rather than strictly a genetic one.\n\nDr. Seyfried is the author of Cancer as a Metabolic Disease and has published extensively on the role of glucose and glutamine metabolism in tumor growth, contributing to growing interest in metabolic therapies in oncology research.",
     "sessions": []

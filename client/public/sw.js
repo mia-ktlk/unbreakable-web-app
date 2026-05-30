@@ -1,4 +1,4 @@
-const CACHE_NAME = "unbreakable-summit-v3";
+const CACHE_NAME = "unbreakable-summit-v4";
 const BASE = new URL("./", self.location.href).pathname;
 const ASSETS = [
   BASE,

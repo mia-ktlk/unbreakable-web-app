@@ -58,6 +58,12 @@ import {
   updateProfile,
 } from "@/lib/profiles";
 import { hasContactDetails, MemberSocialLinks } from "@/components/MemberSocialLinks";
+import {
+  loadAndMergeUserSavedData,
+  saveUserSavedData,
+  UserSavedData,
+  writeLocalUserSavedData,
+} from "@/lib/userData";
 
 const speakerPlaceholderUrl = (name = "Speaker") =>
   `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(name)}&backgroundColor=121214&textColor=D4AF37`;
@@ -154,6 +160,8 @@ export default function Home() {
   const [selectedAttendee, setSelectedAttendee] = useState<Member | null>(null);
   const [feedbackOpen, setFeedbackOpen] = useState(false);
 
+  const cloudSyncTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
   // Load static JSON data
   useEffect(() => {
     const loadData = async () => {
@@ -232,6 +240,57 @@ export default function Home() {
     localStorage.setItem(key, JSON.stringify(data));
   };
 
+  const buildSavedData = (patch: Partial<UserSavedData>): UserSavedData => ({
+    favoriteSpeakers: patch.favoriteSpeakers ?? favoriteSpeakers,
+    favoriteSessions: patch.favoriteSessions ?? favoriteSessions,
+    favoriteSponsors: patch.favoriteSponsors ?? favoriteSponsors,
+    favoriteExhibitors: patch.favoriteExhibitors ?? favoriteExhibitors,
+    scans: patch.scans ?? savedScans,
+  });
+
+  const commitSavedData = (patch: Partial<UserSavedData>) => {
+    const data = buildSavedData(patch);
+    setSavedScans(data.scans);
+    setFavoriteSpeakers(data.favoriteSpeakers);
+    setFavoriteSessions(data.favoriteSessions);
+    setFavoriteSponsors(data.favoriteSponsors);
+    setFavoriteExhibitors(data.favoriteExhibitors);
+    writeLocalUserSavedData(data);
+
+    if (loggedInUser?.id && isSupabaseConfigured()) {
+      if (cloudSyncTimeoutRef.current) {
+        clearTimeout(cloudSyncTimeoutRef.current);
+      }
+      cloudSyncTimeoutRef.current = setTimeout(() => {
+        saveUserSavedData(loggedInUser.id, data).catch((error) => {
+          console.warn("Failed to save user data to cloud:", error);
+        });
+      }, 600);
+    }
+  };
+
+  // Load cloud saved data when logged in
+  useEffect(() => {
+    if (!loggedInUser?.id || !isSupabaseConfigured()) return;
+
+    let cancelled = false;
+    loadAndMergeUserSavedData(loggedInUser.id)
+      .then((merged) => {
+        if (cancelled) return;
+        setSavedScans(merged.scans);
+        setFavoriteSpeakers(merged.favoriteSpeakers);
+        setFavoriteSessions(merged.favoriteSessions);
+        setFavoriteSponsors(merged.favoriteSponsors);
+        setFavoriteExhibitors(merged.favoriteExhibitors);
+        writeLocalUserSavedData(merged);
+      })
+      .catch((error) => console.warn("Failed to load saved data:", error));
+
+    return () => {
+      cancelled = true;
+    };
+  }, [loggedInUser?.id]);
+
   const handleTabChange = (value: string) => {
     setLocation(`/${value}`);
     setSearchQuery(""); // Clear search when changing tabs
@@ -243,8 +302,7 @@ export default function Home() {
     const updated = favoriteSpeakers.includes(id)
       ? favoriteSpeakers.filter(x => x !== id)
       : [...favoriteSpeakers, id];
-    setFavoriteSpeakers(updated);
-    saveToLocalStorage("metfix_fav_speakers", updated);
+    commitSavedData({ favoriteSpeakers: updated });
     toast.success(favoriteSpeakers.includes(id) ? "Removed from favorites" : "Added to favorites");
   };
 
@@ -253,8 +311,7 @@ export default function Home() {
     const updated = favoriteSessions.includes(id)
       ? favoriteSessions.filter(x => x !== id)
       : [...favoriteSessions, id];
-    setFavoriteSessions(updated);
-    saveToLocalStorage("metfix_fav_sessions", updated);
+    commitSavedData({ favoriteSessions: updated });
 
     toast.success(isAdding ? "Added to My Schedule" : "Removed from schedule");
   };
@@ -263,8 +320,7 @@ export default function Home() {
     const updated = favoriteSponsors.includes(id)
       ? favoriteSponsors.filter(x => x !== id)
       : [...favoriteSponsors, id];
-    setFavoriteSponsors(updated);
-    saveToLocalStorage("metfix_fav_sponsors", updated);
+    commitSavedData({ favoriteSponsors: updated });
     toast.success(favoriteSponsors.includes(id) ? "Removed from favorites" : "Sponsor saved");
   };
 
@@ -272,8 +328,7 @@ export default function Home() {
     const updated = favoriteExhibitors.includes(id)
       ? favoriteExhibitors.filter(x => x !== id)
       : [...favoriteExhibitors, id];
-    setFavoriteExhibitors(updated);
-    saveToLocalStorage("metfix_fav_exhibitors", updated);
+    commitSavedData({ favoriteExhibitors: updated });
     toast.success(favoriteExhibitors.includes(id) ? "Removed from favorites" : "Exhibitor saved");
   };
 
@@ -696,8 +751,7 @@ export default function Home() {
         };
 
         const updated = [record, ...savedScans];
-        setSavedScans(updated);
-        saveToLocalStorage("metfix_scans", updated);
+        commitSavedData({ scans: updated });
         toast.success(name === "Unknown Attendee" ? "Scanned unknown attendee ID" : `Scanned & Saved: ${name}`);
       } else {
         toast.info(name === "Unknown Attendee" ? "Badge already scanned." : `${name} is already in your scan history.`);
@@ -724,8 +778,7 @@ export default function Home() {
 
   const deleteScan = (id: string) => {
     const updated = savedScans.filter(s => s.id !== id);
-    setSavedScans(updated);
-    saveToLocalStorage("metfix_scans", updated);
+    commitSavedData({ scans: updated });
     toast.success("Scan removed from history");
     if (selectedScanDetail?.id === id) {
       setSelectedScanDetail(null);
@@ -734,8 +787,7 @@ export default function Home() {
 
   const updateScanNote = (id: string, newNote: string) => {
     const updated = savedScans.map(s => s.id === id ? { ...s, notes: newNote } : s);
-    setSavedScans(updated);
-    saveToLocalStorage("metfix_scans", updated);
+    commitSavedData({ scans: updated });
     toast.success("Note updated");
     if (selectedScanDetail?.id === id) {
       setSelectedScanDetail(prev => prev ? { ...prev, notes: newNote } : null);
@@ -744,8 +796,7 @@ export default function Home() {
 
   const toggleScanFavorite = (id: string) => {
     const updated = savedScans.map(s => s.id === id ? { ...s, favorite: !s.favorite } : s);
-    setSavedScans(updated);
-    saveToLocalStorage("metfix_scans", updated);
+    commitSavedData({ scans: updated });
     if (selectedScanDetail?.id === id) {
       setSelectedScanDetail(prev => prev ? { ...prev, favorite: !prev.favorite } : null);
     }

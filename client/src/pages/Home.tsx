@@ -32,7 +32,9 @@ import {
   Mic,
   LogIn,
   User,
-  LogOut
+  LogOut,
+  Pencil,
+  Loader2
 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -41,12 +43,20 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
+import { Label } from "@/components/ui/label";
 import { Html5Qrcode } from "html5-qrcode";
 import { useRef } from "react";
 
 // Import types
 import { Member, Speaker, Session, DaySchedule, Sponsor, Exhibitor, ScanRecord } from "../types";
 import { publicUrl } from "@/lib/utils";
+import { isSupabaseConfigured } from "@/lib/supabase";
+import {
+  applyProfileOverride,
+  fetchProfileOverrides,
+  mergeMembersWithOverrides,
+  updateProfile,
+} from "@/lib/profiles";
 
 const speakerPlaceholderUrl = (name = "Speaker") =>
   `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(name)}&backgroundColor=121214&textColor=D4AF37`;
@@ -111,6 +121,15 @@ export default function Home() {
   // Auth states
   const [loggedInUser, setLoggedInUser] = useState<Member | null>(null);
   const [profileOpen, setProfileOpen] = useState(false);
+  const [isEditingProfile, setIsEditingProfile] = useState(false);
+  const [isSavingProfile, setIsSavingProfile] = useState(false);
+  const [profileForm, setProfileForm] = useState({
+    email: "",
+    phone: "",
+    website: "",
+    company: "",
+    role: "",
+  });
 
   // Login scanner states
   const loginQrScannerRef = useRef<Html5Qrcode | null>(null);
@@ -142,12 +161,37 @@ export default function Home() {
           fetch(publicUrl("data/exhibitors.json")).then(r => r.json()),
           fetch(publicUrl("data/members.json")).then(r => r.json())
         ]);
+
+        let mergedMembers: Member[] = resMembers;
+        let mergedSpeakers: Speaker[] = resSpeakers;
+
+        if (isSupabaseConfigured()) {
+          try {
+            const overrides = await fetchProfileOverrides();
+            mergedMembers = mergeMembersWithOverrides(resMembers, overrides);
+            mergedSpeakers = mergeMembersWithOverrides(resSpeakers, overrides);
+          } catch (overrideError) {
+            console.warn("Profile overrides unavailable, using static data only.", overrideError);
+          }
+        }
         
-        setSpeakers(resSpeakers);
+        setSpeakers(mergedSpeakers);
         setSchedule(resSchedule.days);
         setSponsors(resSponsors);
         setExhibitors(resExhibitors);
-        setMembers(resMembers);
+        setMembers(mergedMembers);
+
+        const savedUser = localStorage.getItem("metfix_user");
+        if (savedUser) {
+          const parsed = JSON.parse(savedUser) as Member;
+          const freshUser =
+            mergedMembers.find((member) => member.id === parsed.id) ??
+            mergedSpeakers.find((speaker) => speaker.id === parsed.id);
+          if (freshUser) {
+            setLoggedInUser(freshUser);
+            saveToLocalStorage("metfix_user", freshUser);
+          }
+        }
       } catch (error) {
         console.error("Error loading conference data:", error);
         toast.error("Failed to load conference directory data.");
@@ -172,9 +216,6 @@ export default function Home() {
 
     const favExhibitors = localStorage.getItem("metfix_fav_exhibitors");
     if (favExhibitors) setFavoriteExhibitors(JSON.parse(favExhibitors));
-
-    const savedUser = localStorage.getItem("metfix_user");
-    if (savedUser) setLoggedInUser(JSON.parse(savedUser));
   }, []);
 
   // Automatically scroll to the top of the window when switching tabs or routes
@@ -477,7 +518,56 @@ export default function Home() {
   const authenticateUser = (member: Member) => {
     setLoggedInUser(member);
     saveToLocalStorage("metfix_user", member);
+    setIsEditingProfile(false);
     toast.success(`Welcome, ${member.name}!`);
+  };
+
+  const startEditingProfile = () => {
+    if (!loggedInUser) return;
+    setProfileForm({
+      email: loggedInUser.email ?? "",
+      phone: loggedInUser.phone ?? "",
+      website: loggedInUser.website ?? "",
+      company: loggedInUser.company ?? "",
+      role: loggedInUser.role ?? "",
+    });
+    setIsEditingProfile(true);
+  };
+
+  const handleSaveProfile = async () => {
+    if (!loggedInUser) return;
+
+    setIsSavingProfile(true);
+    try {
+      const saved = await updateProfile({
+        badge_id: loggedInUser.id,
+        email: profileForm.email,
+        phone: profileForm.phone,
+        website: profileForm.website,
+        company: profileForm.company,
+        role: profileForm.role,
+      });
+
+      const updatedUser = applyProfileOverride(loggedInUser, saved);
+      setLoggedInUser(updatedUser);
+      saveToLocalStorage("metfix_user", updatedUser);
+      setMembers((prev) =>
+        prev.map((member) =>
+          member.id === updatedUser.id ? applyProfileOverride(member, saved) : member
+        )
+      );
+      setSpeakers((prev) =>
+        prev.map((speaker) =>
+          speaker.id === updatedUser.id ? applyProfileOverride(speaker, saved) : speaker
+        )
+      );
+      setIsEditingProfile(false);
+      toast.success("Profile updated successfully.");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Failed to update profile.");
+    } finally {
+      setIsSavingProfile(false);
+    }
   };
 
   const handleLoginScan = (code: string) => {
@@ -505,6 +595,7 @@ export default function Home() {
     setLoggedInUser(null);
     localStorage.removeItem("metfix_user");
     setProfileOpen(false);
+    setIsEditingProfile(false);
     toast.success("Logged out successfully");
   };
 
@@ -708,14 +799,14 @@ export default function Home() {
             ) : (
               <button
                 onClick={() => handleTabChange("login")}
-                className={`p-2 rounded-full border transition-all ${
+                className={`px-3 py-1.5 rounded-lg border transition-all text-[10px] font-bold uppercase tracking-widest ${
                   currentTab === "login"
                     ? "border-[#c4b396] bg-[#c4b396]/15 text-[#c4b396]"
                     : "border-[#c4b396]/20 bg-[#c4b396]/5 text-[#c4b396] hover:bg-[#c4b396]/10"
                 }`}
                 aria-label="Log in"
               >
-                <LogIn className="h-4 w-4" />
+                Login
               </button>
             )}
             <button
@@ -2746,10 +2837,16 @@ export default function Home() {
       </Dialog>
 
       {/* PROFILE SIDEBAR */}
-      <Sheet open={profileOpen} onOpenChange={setProfileOpen}>
+      <Sheet
+        open={profileOpen}
+        onOpenChange={(open) => {
+          setProfileOpen(open);
+          if (!open) setIsEditingProfile(false);
+        }}
+      >
         <SheetContent
           side="right"
-          className="bg-[#121214] border-[#c4b396]/15 text-[#F8FAFC] w-full sm:max-w-sm overflow-y-auto [&>button]:text-[#8E9CAE] [&>button]:hover:text-white"
+          className="bg-[#121214] border-[#c4b396]/15 text-[#F8FAFC] w-full sm:max-w-sm overflow-y-auto [&>button]:text-[#8E9CAE] [&>button]:hover:text-white flex flex-col"
         >
           {loggedInUser && (
             <>
@@ -2758,75 +2855,194 @@ export default function Home() {
                   <div className="h-14 w-14 rounded-full bg-[#c4b396]/15 border border-[#c4b396]/30 flex items-center justify-center text-[#c4b396] font-bold text-xl shrink-0">
                     {loggedInUser.name.charAt(0)}
                   </div>
-                  <div className="space-y-1 text-left">
+                  <div className="space-y-1 text-left flex-1 min-w-0">
                     <SheetTitle className="text-white font-serif-luxury text-lg">{loggedInUser.name}</SheetTitle>
                     <SheetDescription className="text-[#8E9CAE] text-xs">
                       {loggedInUser.role || loggedInUser.company}
                     </SheetDescription>
                   </div>
+                  {isSupabaseConfigured() && !isEditingProfile && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={startEditingProfile}
+                      className="border-[#c4b396]/30 text-[#c4b396] hover:bg-[#c4b396]/10 h-8 px-2 shrink-0"
+                    >
+                      <Pencil className="h-3.5 w-3.5" />
+                    </Button>
+                  )}
                 </div>
               </SheetHeader>
 
-              <div className="space-y-4 py-4">
-                <div className="flex items-center gap-2">
-                  <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-[#c4b396]/10 text-[#c4b396] border border-[#c4b396]/20 uppercase tracking-wider">
-                    {loggedInUser.type || "attendee"}
-                  </span>
-                </div>
+              {isEditingProfile ? (
+                <div className="space-y-4 py-4 flex-1">
+                  <p className="text-[10px] text-[#8E9CAE] leading-relaxed">
+                    Update your contact info. Changes are visible when others scan your badge.
+                  </p>
 
-                {loggedInUser.company && loggedInUser.company !== loggedInUser.role && (
-                  <div className="rounded-xl border border-[#c4b396]/10 bg-[#070707] p-3 space-y-1">
-                    <p className="text-[9px] font-bold text-[#8E9CAE] uppercase tracking-wider">Company</p>
-                    <p className="text-sm text-white">{loggedInUser.company}</p>
+                  <div className="space-y-3">
+                    <div className="space-y-1.5">
+                      <Label htmlFor="profile-role" className="text-[9px] font-bold text-[#8E9CAE] uppercase tracking-wider">
+                        Role / Title
+                      </Label>
+                      <Input
+                        id="profile-role"
+                        value={profileForm.role}
+                        onChange={(e) => setProfileForm((prev) => ({ ...prev, role: e.target.value }))}
+                        className="bg-[#070707] border-[#c4b396]/20 text-white text-xs h-10"
+                        placeholder="Your role or title"
+                      />
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <Label htmlFor="profile-company" className="text-[9px] font-bold text-[#8E9CAE] uppercase tracking-wider">
+                        Company
+                      </Label>
+                      <Input
+                        id="profile-company"
+                        value={profileForm.company}
+                        onChange={(e) => setProfileForm((prev) => ({ ...prev, company: e.target.value }))}
+                        className="bg-[#070707] border-[#c4b396]/20 text-white text-xs h-10"
+                        placeholder="Company or organization"
+                      />
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <Label htmlFor="profile-email" className="text-[9px] font-bold text-[#8E9CAE] uppercase tracking-wider">
+                        Email
+                      </Label>
+                      <Input
+                        id="profile-email"
+                        type="email"
+                        value={profileForm.email}
+                        onChange={(e) => setProfileForm((prev) => ({ ...prev, email: e.target.value }))}
+                        className="bg-[#070707] border-[#c4b396]/20 text-white text-xs h-10"
+                        placeholder="you@example.com"
+                      />
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <Label htmlFor="profile-phone" className="text-[9px] font-bold text-[#8E9CAE] uppercase tracking-wider">
+                        Phone
+                      </Label>
+                      <Input
+                        id="profile-phone"
+                        type="tel"
+                        value={profileForm.phone}
+                        onChange={(e) => setProfileForm((prev) => ({ ...prev, phone: e.target.value }))}
+                        className="bg-[#070707] border-[#c4b396]/20 text-white text-xs h-10"
+                        placeholder="+1 (555) 555-0100"
+                      />
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <Label htmlFor="profile-website" className="text-[9px] font-bold text-[#8E9CAE] uppercase tracking-wider">
+                        Website
+                      </Label>
+                      <Input
+                        id="profile-website"
+                        value={profileForm.website}
+                        onChange={(e) => setProfileForm((prev) => ({ ...prev, website: e.target.value }))}
+                        className="bg-[#070707] border-[#c4b396]/20 text-white text-xs h-10"
+                        placeholder="https://yoursite.com"
+                      />
+                    </div>
                   </div>
-                )}
 
-                {loggedInUser.email && (
-                  <a
-                    href={`mailto:${loggedInUser.email}`}
-                    className="flex items-center gap-3 rounded-xl border border-[#c4b396]/10 bg-[#070707] p-3 hover:border-[#c4b396]/30 transition-all"
-                  >
-                    <Mail className="h-4 w-4 text-[#c4b396] shrink-0" />
-                    <div className="min-w-0">
-                      <p className="text-[9px] font-bold text-[#8E9CAE] uppercase tracking-wider">Email</p>
-                      <p className="text-xs text-white truncate">{loggedInUser.email}</p>
-                    </div>
-                  </a>
-                )}
-
-                {loggedInUser.phone && (
-                  <a
-                    href={`tel:${loggedInUser.phone}`}
-                    className="flex items-center gap-3 rounded-xl border border-[#c4b396]/10 bg-[#070707] p-3 hover:border-[#c4b396]/30 transition-all"
-                  >
-                    <Phone className="h-4 w-4 text-[#c4b396] shrink-0" />
-                    <div className="min-w-0">
-                      <p className="text-[9px] font-bold text-[#8E9CAE] uppercase tracking-wider">Phone</p>
-                      <p className="text-xs text-white">{loggedInUser.phone}</p>
-                    </div>
-                  </a>
-                )}
-
-                {loggedInUser.website && (
-                  <a
-                    href={loggedInUser.website}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-3 rounded-xl border border-[#c4b396]/10 bg-[#070707] p-3 hover:border-[#c4b396]/30 transition-all"
-                  >
-                    <Globe className="h-4 w-4 text-[#c4b396] shrink-0" />
-                    <div className="min-w-0">
-                      <p className="text-[9px] font-bold text-[#8E9CAE] uppercase tracking-wider">Website</p>
-                      <p className="text-xs text-[#c4b396] truncate">{loggedInUser.website.replace(/^https?:\/\//, "")}</p>
-                    </div>
-                  </a>
-                )}
-
-                <div className="rounded-xl border border-[#c4b396]/10 bg-[#070707] p-3 space-y-1">
-                  <p className="text-[9px] font-bold text-[#8E9CAE] uppercase tracking-wider">Badge ID</p>
-                  <p className="text-xs text-white font-mono break-all">{loggedInUser.id}</p>
+                  <div className="flex gap-2 pt-2">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => setIsEditingProfile(false)}
+                      disabled={isSavingProfile}
+                      className="flex-1 border-[#c4b396]/30 text-white hover:bg-white/5 h-10 rounded-lg text-xs font-bold uppercase tracking-wider"
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      type="button"
+                      onClick={handleSaveProfile}
+                      disabled={isSavingProfile}
+                      className="flex-1 bg-[#c4b396] hover:bg-[#c4b396]/80 text-[#070707] h-10 rounded-lg text-xs font-bold uppercase tracking-wider"
+                    >
+                      {isSavingProfile ? (
+                        <>
+                          <Loader2 className="h-4 w-4 animate-spin mr-1.5" />
+                          Saving
+                        </>
+                      ) : (
+                        "Save Profile"
+                      )}
+                    </Button>
+                  </div>
                 </div>
-              </div>
+              ) : (
+                <div className="space-y-4 py-4 flex-1">
+                  <div className="flex items-center gap-2">
+                    <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-[#c4b396]/10 text-[#c4b396] border border-[#c4b396]/20 uppercase tracking-wider">
+                      {loggedInUser.type || "attendee"}
+                    </span>
+                  </div>
+
+                  {(loggedInUser.company || loggedInUser.role) && (
+                    <div className="rounded-xl border border-[#c4b396]/10 bg-[#070707] p-3 space-y-1">
+                      <p className="text-[9px] font-bold text-[#8E9CAE] uppercase tracking-wider">Company</p>
+                      <p className="text-sm text-white">{loggedInUser.company || loggedInUser.role}</p>
+                    </div>
+                  )}
+
+                  {loggedInUser.email ? (
+                    <a
+                      href={`mailto:${loggedInUser.email}`}
+                      className="flex items-center gap-3 rounded-xl border border-[#c4b396]/10 bg-[#070707] p-3 hover:border-[#c4b396]/30 transition-all"
+                    >
+                      <Mail className="h-4 w-4 text-[#c4b396] shrink-0" />
+                      <div className="min-w-0">
+                        <p className="text-[9px] font-bold text-[#8E9CAE] uppercase tracking-wider">Email</p>
+                        <p className="text-xs text-white truncate">{loggedInUser.email}</p>
+                      </div>
+                    </a>
+                  ) : isSupabaseConfigured() ? (
+                    <div className="rounded-xl border border-dashed border-[#c4b396]/20 bg-[#070707] p-3">
+                      <p className="text-[10px] text-[#8E9CAE]">No email yet. Tap edit to add your contact info.</p>
+                    </div>
+                  ) : null}
+
+                  {loggedInUser.phone && (
+                    <a
+                      href={`tel:${loggedInUser.phone}`}
+                      className="flex items-center gap-3 rounded-xl border border-[#c4b396]/10 bg-[#070707] p-3 hover:border-[#c4b396]/30 transition-all"
+                    >
+                      <Phone className="h-4 w-4 text-[#c4b396] shrink-0" />
+                      <div className="min-w-0">
+                        <p className="text-[9px] font-bold text-[#8E9CAE] uppercase tracking-wider">Phone</p>
+                        <p className="text-xs text-white">{loggedInUser.phone}</p>
+                      </div>
+                    </a>
+                  )}
+
+                  {loggedInUser.website && (
+                    <a
+                      href={loggedInUser.website}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-3 rounded-xl border border-[#c4b396]/10 bg-[#070707] p-3 hover:border-[#c4b396]/30 transition-all"
+                    >
+                      <Globe className="h-4 w-4 text-[#c4b396] shrink-0" />
+                      <div className="min-w-0">
+                        <p className="text-[9px] font-bold text-[#8E9CAE] uppercase tracking-wider">Website</p>
+                        <p className="text-xs text-[#c4b396] truncate">{loggedInUser.website.replace(/^https?:\/\//, "")}</p>
+                      </div>
+                    </a>
+                  )}
+
+                  <div className="rounded-xl border border-[#c4b396]/10 bg-[#070707] p-3 space-y-1">
+                    <p className="text-[9px] font-bold text-[#8E9CAE] uppercase tracking-wider">Badge ID</p>
+                    <p className="text-xs text-white font-mono break-all">{loggedInUser.id}</p>
+                  </div>
+                </div>
+              )}
 
               <div className="mt-auto pt-4 border-t border-[#c4b396]/10">
                 <Button

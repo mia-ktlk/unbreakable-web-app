@@ -49,7 +49,7 @@ import { Html5Qrcode } from "html5-qrcode";
 import { useRef } from "react";
 
 // Import types
-import { Member, Speaker, Session, DaySchedule, Sponsor, Exhibitor, ScanRecord } from "../types";
+import { Member, Speaker, Session, DaySchedule, Sponsor, Exhibitor, Course, ScanRecord } from "../types";
 import { matchesSearchQuery } from "@/lib/search";
 import { cn, publicUrl } from "@/lib/utils";
 import { buildVCard } from "@/lib/vcard";
@@ -149,6 +149,7 @@ export default function Home() {
   const [speakers, setSpeakers] = useState<Speaker[]>([]);
   const [schedule, setSchedule] = useState<DaySchedule[]>([]);
   const [sponsors, setSponsors] = useState<Sponsor[]>([]);
+  const [courses, setCourses] = useState<Course[]>([]);
   const [exhibitors, setExhibitors] = useState<Exhibitor[]>([]);
   const [members, setMembers] = useState<Member[]>([]);
 
@@ -229,10 +230,11 @@ export default function Home() {
   useEffect(() => {
     const loadData = async () => {
       try {
-        const [resSpeakers, resSchedule, resSponsors, resExhibitors, resMembers] = await Promise.all([
+        const [resSpeakers, resSchedule, resSponsors, resCourses, resExhibitors, resMembers] = await Promise.all([
           fetch(publicUrl("data/speakers.json")).then(r => r.json()),
           fetch(publicUrl("data/schedule.json")).then(r => r.json()),
           fetch(publicUrl("data/sponsors.json")).then(r => r.json()),
+          fetch(publicUrl("data/courses.json")).then(r => r.json()),
           fetch(publicUrl("data/exhibitors.json")).then(r => r.json()),
           fetch(publicUrl("data/members.json")).then(r => r.json())
         ]);
@@ -253,6 +255,7 @@ export default function Home() {
         setSpeakers(mergedSpeakers);
         setSchedule(resSchedule.days);
         setSponsors(resSponsors);
+        setCourses(resCourses);
         setExhibitors(resExhibitors);
         setMembers(mergedMembers);
 
@@ -1198,6 +1201,60 @@ export default function Home() {
                       <span className={`text-[7px] font-black px-1.5 py-0.2 rounded uppercase tracking-wider ${sponsor.tier === "Platinum" ? "bg-[#c4b396]/20 text-[#c4b396]" : "bg-neutral-800 text-[#8E9CAE]"}`}>
                         {sponsor.tier}
                       </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* OUR COURSES CAROUSEL */}
+            <div className="space-y-3">
+              <h3 className="text-xs font-bold uppercase tracking-widest text-[#c4b396] font-serif-luxury">Our Courses</h3>
+
+              <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-none">
+                {courses.map(course => (
+                  <div
+                    key={course.id}
+                    className="flex-shrink-0 w-44 rounded-xl border border-[#c4b396]/10 bg-[#121214] overflow-hidden hover:border-[#c4b396]/30 transition-all"
+                  >
+                    <div className="relative aspect-video bg-[#0a0a0b] border-b border-[#c4b396]/10">
+                      {course.image ? (
+                        <img
+                          src={publicUrl(course.image.replace(/^\//, ""))}
+                          alt={course.name}
+                          className="h-full w-full object-cover"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).style.display = "none";
+                            (e.target as HTMLImageElement).nextElementSibling?.classList.remove("hidden");
+                          }}
+                        />
+                      ) : null}
+                      <div className={cn(
+                        "absolute inset-0 flex flex-col items-center justify-center gap-1 text-[#8E9CAE]",
+                        course.image ? "hidden" : ""
+                      )}>
+                        <BookOpen className="h-6 w-6 text-[#c4b396]/40" />
+                        <span className="text-[8px] uppercase tracking-wider text-[#8E9CAE]/60">Image coming soon</span>
+                      </div>
+                      {course.comingSoon && (
+                        <span className="absolute top-2 right-2 text-[7px] font-black px-1.5 py-0.5 rounded uppercase tracking-wider bg-[#c4b396] text-[#070707] shadow-sm">
+                          Coming Soon
+                        </span>
+                      )}
+                    </div>
+                    <div className="p-3 space-y-2">
+                      <h4 className="text-[10px] font-bold text-white leading-tight">{course.name}</h4>
+                      <Button
+                        asChild
+                        variant="outline"
+                        size="sm"
+                        className="w-full h-7 text-[9px] font-bold uppercase tracking-wider border-[#c4b396]/20 text-[#c4b396] hover:bg-[#c4b396]/10 hover:text-white"
+                      >
+                        <a href={course.url} target="_blank" rel="noopener noreferrer">
+                          {course.comingSoon ? "Notify Me" : "Learn More"}
+                          <ExternalLink className="h-2.5 w-2.5 ml-1" />
+                        </a>
+                      </Button>
                     </div>
                   </div>
                 ))}

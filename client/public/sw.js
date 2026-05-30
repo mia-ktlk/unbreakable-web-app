@@ -1,4 +1,4 @@
-const CACHE_NAME = "unbreakable-summit-v4";
+const CACHE_NAME = "unbreakable-summit-v5";
 const BASE = new URL("./", self.location.href).pathname;
 const ASSETS = [
   BASE,
@@ -7,6 +7,7 @@ const ASSETS = [
   `${BASE}data/speakers.json`,
   `${BASE}data/schedule.json`,
   `${BASE}data/sponsors.json`,
+  `${BASE}data/courses.json`,
   `${BASE}data/exhibitors.json`,
   `${BASE}data/members.json`,
 ];

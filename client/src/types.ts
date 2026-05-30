@@ -50,6 +50,14 @@ export interface Sponsor {
   };
 }
 
+export interface Course {
+  id: string;
+  name: string;
+  url: string;
+  image: string;
+  comingSoon?: boolean;
+}
+
 export interface Exhibitor {
   id: string;
   name: string;

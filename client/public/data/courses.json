@@ -3,42 +3,42 @@
     "id": "course-1",
     "name": "What is MetFix",
     "url": "https://whatis.metfix.org/",
-    "image": "/images/courses/what-is-metfix.png",
+    "image": "/images/courses/what-is-metfix.webp",
     "comingSoon": false
   },
   {
     "id": "course-2",
     "name": "Diabetes",
     "url": "https://brokenscience.org/courses/the-broken-science-of-diabetes-a-foundational-course-on-nutrition/",
-    "image": "/images/courses/diabetes.png",
+    "image": "/images/courses/diabetes.webp",
     "comingSoon": false
   },
   {
     "id": "course-3",
     "name": "Critical Thinking",
     "url": "https://brokenscience.org/courses/the-math-class/",
-    "image": "/images/courses/critical-thinking.png",
+    "image": "/images/courses/critical-thinking.webp",
     "comingSoon": false
   },
   {
     "id": "course-4",
     "name": "MetFix Seminar",
     "url": "https://brokenscience.org/metfix/seminar-calendar/",
-    "image": "/images/courses/metfix-seminar.png",
+    "image": "/images/courses/metfix-seminar.webp",
     "comingSoon": false
   },
   {
     "id": "course-5",
     "name": "Fit For Duty",
     "url": "https://brokenscience.org/fit-for-life-mailing-list/",
-    "image": "/images/courses/fit-for-duty.png",
+    "image": "/images/courses/fit-for-duty.webp",
     "comingSoon": true
   },
   {
     "id": "course-6",
     "name": "The Missing Manual",
     "url": "https://brokenscience.org/the-missing-manual-mailing-list/",
-    "image": "/images/courses/the-missing-manual.png",
+    "image": "/images/courses/the-missing-manual.webp",
     "comingSoon": true
   }
 ]

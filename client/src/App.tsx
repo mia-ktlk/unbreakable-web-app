@@ -25,16 +25,16 @@ const routerBase = import.meta.env.BASE_URL.replace(/\/$/, "");
 
 function App() {
   return (
-    <ErrorBoundary>
-      <ThemeProvider defaultTheme="dark">
-        <TooltipProvider>
-          <Toaster position="top-center" theme="dark" closeButton />
-          <WouterRouter base={routerBase}>
+    <ThemeProvider defaultTheme="dark">
+      <TooltipProvider>
+        <Toaster position="top-center" theme="dark" closeButton />
+        <WouterRouter base={routerBase}>
+          <ErrorBoundary>
             <AppRoutes />
-          </WouterRouter>
-        </TooltipProvider>
-      </ThemeProvider>
-    </ErrorBoundary>
+          </ErrorBoundary>
+        </WouterRouter>
+      </TooltipProvider>
+    </ThemeProvider>
   );
 }
 

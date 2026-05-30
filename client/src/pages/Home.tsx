@@ -50,6 +50,7 @@ import { useRef } from "react";
 
 // Import types
 import { Member, Speaker, Session, DaySchedule, Sponsor, Exhibitor, ScanRecord } from "../types";
+import { matchesSearchQuery } from "@/lib/search";
 import { cn, publicUrl } from "@/lib/utils";
 import {
   DAY_TO_DATE,
@@ -979,7 +980,7 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-[#070707] text-[#F8FAFC] pb-32 flex flex-col font-sans">
       {/* HEADER */}
-      <header className="sticky top-0 z-40 w-full border-b border-[#c4b396]/15 bg-[#070707]/90 backdrop-blur-md px-4 py-4 pt-safe">
+      <header className="sticky top-0 z-40 w-full border-b border-[#c4b396]/15 bg-[#070707]/90 backdrop-blur-md px-4 pb-4 pt-safe">
         <div className="max-w-md mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="h-10 w-10 rounded-full border border-[#c4b396]/30 flex items-center justify-center bg-[#121214] overflow-hidden p-1 bg-gradient-to-b from-[#1c1c1f] to-[#0d0d0e]">
@@ -1697,10 +1698,7 @@ export default function Home() {
             {/* EXHIBITORS LIST */}
             <div className="space-y-4">
               {exhibitors
-                .filter(ex => {
-                  const query = searchQuery.toLowerCase();
-                  return ex.name.toLowerCase().includes(query) || ex.category.toLowerCase().includes(query);
-                })
+                .filter((ex) => matchesSearchQuery(searchQuery, ex.name, ex.category))
                 .map(exhibitor => {
                   const isSaved = favoriteExhibitors.includes(exhibitor.id);
                   return (
@@ -1957,10 +1955,9 @@ export default function Home() {
                     {/* SPEAKERS GRID */}
                     <div className="grid grid-cols-1 gap-4">
                       {speakers
-                        .filter(sp => {
-                          const query = searchQuery.toLowerCase();
-                          return sp.name.toLowerCase().includes(query) || sp.company.toLowerCase().includes(query) || sp.role.toLowerCase().includes(query);
-                        })
+                        .filter((sp) =>
+                          matchesSearchQuery(searchQuery, sp.name, sp.company, sp.role)
+                        )
                         .map(speaker => {
                           const isSaved = favoriteSpeakers.includes(speaker.id);
                           return (
@@ -2151,14 +2148,9 @@ export default function Home() {
             <div className="grid grid-cols-1 gap-3">
               {members
                 .filter((member) => member.type === "attendee")
-                .filter((member) => {
-                  const query = searchQuery.toLowerCase();
-                  return (
-                    member.name.toLowerCase().includes(query) ||
-                    member.company.toLowerCase().includes(query) ||
-                    member.role.toLowerCase().includes(query)
-                  );
-                })
+                .filter((member) =>
+                  matchesSearchQuery(searchQuery, member.name, member.company, member.role)
+                )
                 .map((member) => (
                   <div
                     key={member.id}

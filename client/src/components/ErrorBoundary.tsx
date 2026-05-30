@@ -4,6 +4,8 @@ import { Component, ReactNode } from "react";
 
 interface Props {
   children: ReactNode;
+  /** When true, log the error and render nothing instead of a fallback UI. */
+  silent?: boolean;
 }
 
 interface State {
@@ -21,34 +23,57 @@ class ErrorBoundary extends Component<Props, State> {
     return { hasError: true, error };
   }
 
+  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
+    console.error("[ErrorBoundary]", error, errorInfo.componentStack);
+  }
+
+  reset = () => {
+    this.setState({ hasError: false, error: null });
+  };
+
   render() {
     if (this.state.hasError) {
+      if (this.props.silent) {
+        return null;
+      }
+
+      const showStack = import.meta.env.DEV;
+
       return (
-        <div className="flex items-center justify-center min-h-screen p-8 bg-background">
-          <div className="flex flex-col items-center w-full max-w-2xl p-8">
-            <AlertTriangle
-              size={48}
-              className="text-destructive mb-6 flex-shrink-0"
-            />
-
-            <h2 className="text-xl mb-4">An unexpected error occurred.</h2>
-
-            <div className="p-4 w-full rounded bg-muted overflow-auto mb-6">
-              <pre className="text-sm text-muted-foreground whitespace-break-spaces">
-                {this.state.error?.stack}
-              </pre>
+        <div className="flex min-h-[50vh] items-center justify-center p-6">
+          <div
+            role="alert"
+            className={cn(
+              "flex w-full max-w-md flex-col gap-4 rounded-lg border border-destructive/30",
+              "bg-background p-5 shadow-lg"
+            )}
+          >
+            <div className="flex items-start gap-3">
+              <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-destructive" />
+              <div className="space-y-1">
+                <p className="text-sm font-medium">Something went wrong</p>
+                <p className="text-xs text-muted-foreground">
+                  The page hit an unexpected error. You can try again without reloading.
+                </p>
+              </div>
             </div>
 
+            {showStack && this.state.error?.stack && (
+              <pre className="max-h-32 overflow-auto rounded bg-muted p-2 text-[10px] text-muted-foreground whitespace-break-spaces">
+                {this.state.error.stack}
+              </pre>
+            )}
+
             <button
-              onClick={() => window.location.reload()}
+              type="button"
+              onClick={this.reset}
               className={cn(
-                "flex items-center gap-2 px-4 py-2 rounded-lg",
-                "bg-primary text-primary-foreground",
-                "hover:opacity-90 cursor-pointer"
+                "flex items-center justify-center gap-1.5 self-start rounded-md px-3 py-1.5 text-xs font-medium",
+                "bg-primary text-primary-foreground hover:opacity-90"
               )}
             >
-              <RotateCcw size={16} />
-              Reload Page
+              <RotateCcw className="h-3.5 w-3.5" />
+              Try again
             </button>
           </div>
         </div>

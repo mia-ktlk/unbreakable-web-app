@@ -1,0 +1,34 @@
+[
+  {
+    "id": "ex1",
+    "name": "JilaMD & Miami Menopause Collective",
+    "booth": "Booth 301",
+    "category": "Clinical Practice & Longevity",
+    "description": "Miami's premier personalized women's midlife health and longevity practice, specializing in perimenopause and menopause optimization.",
+    "website": "https://jilamd.com"
+  },
+  {
+    "id": "ex2",
+    "name": "Dr. Fit and Fabulous",
+    "booth": "Booth 302",
+    "category": "Clinical Practice & Strength",
+    "description": "Integrative women's health and metabolic medicine consulting led by board-certified OB-GYN Dr. Jaime Seeman.",
+    "website": "https://drfitandfabulous.com"
+  },
+  {
+    "id": "ex3",
+    "name": "STRONG New York",
+    "booth": "Booth 303",
+    "category": "Fitness & Community",
+    "description": "NYC's premier fitness community and event series, supporting mental health, Alzheimer's awareness, and physical longevity.",
+    "website": "https://strongnewyork.com"
+  },
+  {
+    "id": "ex4",
+    "name": "BSI Medical Society",
+    "booth": "Booth 304",
+    "category": "Education & Accreditation",
+    "description": "Accrediting body offering Certificates of Completion and professional education in metabolic medicine and scientific integrity.",
+    "website": "https://brokenscience.org"
+  }
+]

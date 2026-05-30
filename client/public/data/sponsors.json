@@ -1,0 +1,54 @@
+[
+  {
+    "id": "sp-1",
+    "name": "Niagen",
+    "logo": "https://www.truniagen.com/cdn/shop/files/TN_Logo.svg?v=1723656218&width=100",
+    "website": "https://www.truniagen.com",
+    "description": "Official Sponsor of the Unbreakable Health Summit 2026. Supporting the metabolic health revolution.",
+    "tier": "Platinum",
+    "socials": {
+      "instagram": "https://www.instagram.com/truniagen/",
+      "facebook": "https://www.facebook.com/TruNiagen",
+      "linkedin": "https://www.linkedin.com/company/niagenbioscience/"
+    }
+  },
+  {
+    "id": "sp-2",
+    "name": "Impact Health Sharing",
+    "logo": "https://www.impacthealthsharing.com/hs-fs/hubfs/Pulse%20Logo/logo-tag-primary-250.png?width=500&height=132&name=logo-tag-primary-250.png",
+    "website": "https://www.impacthealthsharing.com",
+    "description": "Official Sponsor of the Unbreakable Health Summit 2026. Supporting the metabolic health revolution.",
+    "tier": "Gold",
+    "socials": {
+      "instagram": "https://www.instagram.com/impacthealthsharing/",
+      "facebook": "https://www.facebook.com/impacthealthsharing2019",
+      "linkedin": "https://www.linkedin.com/company/65547996/admin/dashboard/"
+    }
+  },
+  {
+    "id": "sp-3",
+    "name": "GoRuck",
+    "logo": "https://www.goruck.com/cdn/shop/files/GORUCK_logo_horizontal.png?v=1670947180&width=600",
+    "website": "https://www.goruck.com",
+    "description": "Official Sponsor of the Unbreakable Health Summit 2026. Supporting the metabolic health revolution.",
+    "tier": "Gold",
+    "socials": {
+      "instagram": "https://www.instagram.com/goruck",
+      "facebook": "https://www.facebook.com/GORUCK/",
+      "linkedin": "https://www.linkedin.com/company/goruck"
+    }
+  },
+  {
+    "id": "sp-4",
+    "name": "Let's Go BHB",
+    "logo": "https://letsgobhb.co/cdn/shop/files/Vector.svg?v=1748867169&width=60",
+    "website": "https://letsgobhb.co",
+    "description": "Official Sponsor of the Unbreakable Health Summit 2026. Supporting the metabolic health revolution.",
+    "tier": "Silver",
+    "socials": {
+      "instagram": "https://www.instagram.com/letsgobhb/",
+      "facebook": "https://www.facebook.com/profile.php?id=61581776219778&mibextid=wwXIfr",
+      "linkedin": ""
+    }
+  }
+]

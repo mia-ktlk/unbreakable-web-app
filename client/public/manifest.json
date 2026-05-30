@@ -1,0 +1,17 @@
+{
+  "short_name": "Unbreakable",
+  "name": "Unbreakable Health Summit 2026",
+  "icons": [
+    {
+      "src": "https://brokenscience.org/wp-content/uploads/2026/02/bronze-logo-2x.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "any maskable"
+    }
+  ],
+  "start_url": "/",
+  "background_color": "#070707",
+  "theme_color": "#070707",
+  "display": "standalone",
+  "orientation": "portrait"
+}

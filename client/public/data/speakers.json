@@ -1,0 +1,264 @@
+[
+  {
+    "id": "01KSG9HP9X4QDSR7REY",
+    "name": "Emily Kaplan",
+    "role": "CEO & CoFounder",
+    "company": "The Broken Science Initiative & MetFix",
+    "type": "speaker",
+    "website": "https://brokenscience.org",
+    "image": "https://brokenscience.org/wp-content/uploads/2026/02/speaker-emily-kaplan-3-web-e1772302744477.png",
+    "bio": "Emily Kaplan is a journalist and entrepreneur focused on investigating institutional failures in public health, nutrition policy, and scientific integrity. As co-founder of The Broken Science Initiative and MetFix, she works to examine how flawed research, financial conflicts, and regulatory capture have shaped modern dietary guidance and chronic disease outcomes.\n\nKaplan’s work centers on translating complex metabolic health issues into accessible, investigative storytelling while holding powerful institutions accountable.",
+    "instagram": "https://www.instagram.com/newsnotnoise/",
+    "sessions": [
+      "Investigative Journalism in Public Health",
+      "The Future of Fitness & Medicine Panel"
+    ]
+  },
+  {
+    "id": "01KSG9P49FTMBWXY106",
+    "name": "Greg Glassman",
+    "role": "CoFounder",
+    "company": "The Broken Science Initiative & MetFix",
+    "type": "speaker",
+    "website": "https://brokenscience.org",
+    "image": "https://brokenscience.org/wp-content/uploads/2026/03/greg-glassman-speaker-v3-web-e1773266303701.png",
+    "bio": "Greg Glassman is the founder of CrossFit and one of the most influential figures in modern fitness. In 2000, he formalized the CrossFit methodology, combining functional movements performed at high intensity to improve work capacity across broad time and modal domains. CrossFit grew into a global training movement with thousands of affiliated gyms worldwide.\n\nGlassman has been an outspoken critic of flawed public health narratives, particularly around chronic disease, nutrition science, and conflicts of interest in research. He is co-founder of The Broken Science Initiative and MetFix, organizations dedicated to exposing scientific misconduct and reframing metabolic disease as a preventable and reversible condition rooted in nutrition and lifestyle.",
+    "sessions": [
+      "Opening Keynote: Broken Science & Metabolic Health",
+      "The Future of Fitness & Medicine Panel"
+    ]
+  },
+  {
+    "id": "01KSG97CEJ0TDYMQPNM",
+    "name": "Dave Feldman",
+    "role": "Software Engineer & Founder",
+    "company": "Cholesterol Code",
+    "type": "speaker",
+    "image": "https://brokenscience.org/wp-content/uploads/2026/02/speaker-dave-feldman-3-web-e1772303343727.png",
+    "bio": "Dave Feldman is a software engineer and independent researcher best known for founding the Cholesterol Code, a citizen-science initiative examining lipid metabolism in low-carbohydrate populations.\n\nFeldman’s data-driven experiments explore cholesterol variability, energy metabolism, and the “lean mass hyper-responder” phenotype, contributing to ongoing discussions around cardiovascular risk assessment in metabolically healthy individuals.",
+    "sessions": [
+      "Lipidology, Cholesterol & Citizen Science",
+      "The Lean Mass Hyper-Responder Phenotype"
+    ]
+  },
+  {
+    "id": "01KSGAS4MVZBP46JM5X",
+    "name": "Mark Sisson",
+    "role": "Author and Health Researcher",
+    "company": "Primal Kitchen",
+    "type": "speaker",
+    "image": "https://brokenscience.org/wp-content/uploads/2026/02/speaker-mark-sisson-3-web-e1772303405348.png",
+    "bio": "Mark Sisson is a best-selling author and health educator known for pioneering the Primal health movement. He is the author of The Primal Blueprint and several other books exploring ancestral health, metabolic flexibility, and lifestyle-based approaches to preventing chronic disease.\n\nSisson is also the founder of Primal Kitchen and a long-time advocate for low-carbohydrate, whole-food nutrition strategies grounded in evolutionary biology and metabolic science.",
+    "sessions": [
+      "Pioneering the Primal Health Movement",
+      "Metabolic Flexibility & Ancestral Living"
+    ]
+  },
+  {
+    "id": "01KSG9B7SK90424AJ9V",
+    "name": "Dr. Jaime Seeman",
+    "role": "Board-Certified Obstetrician & Gynecologist",
+    "company": "",
+    "type": "speaker",
+    "image": "https://brokenscience.org/wp-content/uploads/2026/02/speaker-jaime-seeman-3-web-e1772303275386.png",
+    "bio": "Dr. Jaime Seeman is a board-certified OB-GYN, author, and public health advocate specializing in women’s metabolic health. Her work focuses on insulin resistance, strength training, and lifestyle interventions to prevent obesity, diabetes, and cardiovascular disease.\n\nDr. Seeman integrates clinical medicine with performance training and emphasizes strength as a cornerstone of long-term metabolic resilience.",
+    "sessions": [
+      "Women's Metabolic Health & Longevity",
+      "Hormones, Strength & Metabolic Resilience"
+    ]
+  },
+  {
+    "id": "01KSGA9H6ETF574X35G",
+    "name": "Thomas Seyfried, PHD",
+    "role": "Professor of Biology",
+    "company": "Boston College",
+    "type": "speaker",
+    "image": "https://brokenscience.org/wp-content/uploads/2026/02/speaker-thomas-seyfried-3-web-e1772302568581.png",
+    "bio": "Prof. Thomas Seyfried is a professor of biology at Boston College and a leading researcher in cancer metabolism. His work advances the metabolic theory of cancer, proposing that cancer is primarily a mitochondrial metabolic disease rather than strictly a genetic one.\n\nDr. Seyfried is the author of Cancer as a Metabolic Disease and has published extensively on the role of glucose and glutamine metabolism in tumor growth, contributing to growing interest in metabolic therapies in oncology research.",
+    "sessions": []
+  },
+  {
+    "id": "01KSG99GEQXJVSJCTAW",
+    "name": "Drew Pinsky, M.D.",
+    "role": "Physician & Broadcaster",
+    "company": "",
+    "type": "speaker",
+    "image": "https://brokenscience.org/wp-content/uploads/2026/02/speaker-drew-pinsky-3-web-e1772303208441.png",
+    "bio": "Dr. Drew Pinsky, widely known as Dr. Drew, is a board-certified physician specializing in internal and addiction medicine and a longtime media broadcaster. He gained national recognition as co-host of Loveline and through numerous television programs focused on addiction, mental health, and public health education.\n\nFor decades, Dr. Pinsky has worked at the intersection of clinical medicine and mass communication, translating complex health topics for broad audiences.",
+    "sessions": []
+  },
+  {
+    "id": "01KSGA43KDKNK6TQRHG",
+    "name": "Kenny Santucci",
+    "role": "Fitness Entrepreneur, Coach, & Community Leader",
+    "company": "",
+    "type": "speaker",
+    "image": "https://brokenscience.org/wp-content/uploads/2026/02/speaker-kenny-santucci-3-web-e1772302945363.png",
+    "bio": "Kenny Santucci is a New York City based trainer, coach, host, and fitness entrepreneur with more than a decade in the health and wellness space. Known for high energy leadership and a community-first approach, he is recognized as one of NYC’s top trainers and a trusted voice in performance and lifestyle fitness.\n\nHe serves as a brand ambassador for Michelob Ultra and Fitaid, is a Technogym Master Trainer, and has hosted major wellness events including the Fitaid Morning Show and the Michelob Ultra Movement Fitness Festival. He also created STRONG New York, an event series that supports causes like Alzheimer’s awareness, Movember, and breast cancer research. His mission is personal, after overcoming weight struggles as a teen, he found wrestling and strength training at 15 and has been helping others build physical and mental strength ever since.\n\nHis philosophy is simple:\n“Lift heavy. Lift yourself. Lift up others.”",
+    "sessions": [
+      "Morning High-Intensity Workout",
+      "Community Building & Physical Strength as Medicine"
+    ]
+  },
+  {
+    "id": "01KSG9FFK42B54HGBYM",
+    "name": "Eddie Hertzman",
+    "role": "Founder",
+    "company": "Athletech News",
+    "type": "speaker",
+    "image": "https://brokenscience.org/wp-content/uploads/2026/02/speaker-eddie-hertzman-3-web-e1772302880451.png",
+    "bio": "Edward Hertzman is the founder of Athletech News, a leading digital publication covering the business of fitness and wellness. Previously, he founded Sourcing Journal, which he later sold to Penske Media Group.\n\nRecognizing the need for a dedicated business intelligence platform in the fitness and wellness sector, Hertzman launched Athletech News to provide in-depth reporting, proprietary content, research, and industry analysis. Today, the platform reaches more than 100,000 subscribers and continues expanding into live events and executive forums.",
+    "sessions": [
+      "The Business of Fitness & Wellness",
+      "The Future of Fitness & Medicine Panel"
+    ]
+  },
+  {
+    "id": "01KSG8KMNJN8R6XDK8A",
+    "name": "Arianna Masotti, PSYD",
+    "role": "Clinical Psychologist & Founder",
+    "company": "The Bloome Method",
+    "type": "speaker",
+    "image": "https://brokenscience.org/wp-content/uploads/2026/02/speaker-arianna-masotti-3-web-e1772302802790.png",
+    "bio": "Arianna Masotti is an award-winning clinical psychologist, wellness coach, and public speaker. She is the founder of the Bloome Method, also known as Post-Workout Therapy (PWT), which blends psychodynamic psychology, neuroscience, and performance coaching to help high achievers strengthen self-esteem, body image, relationships, and career alignment.\n\nDr. Masotti created the method after noticing that clients who came to therapy right after a workout showed more openness, flexibility, and emotional access. After more than 10,000 post-workout therapy sessions, she turned that insight into a structured approach that uses the “prime state” after training to support resilience and growth. She also founded the Bloome Clinic, a multidisciplinary practice combining therapists, coaches, and trainers. Originally launched in London, Bloome is expanding to New York and Los Angeles as she works to train the next generation of performance-focused wellness coaches.",
+    "sessions": []
+  },
+  {
+    "id": "01KSG9DD3RASEDRJ45R",
+    "name": "Dr. Jila Senemar",
+    "role": "Board Certified Obstetrician-Gynecologist",
+    "company": "JilaMD",
+    "type": "speaker",
+    "image": "https://brokenscience.org/wp-content/uploads/2026/03/jila-senemar-speaker-v4-web.png",
+    "bio": "Dr. Jila Senemar, MD, FACOG, is a board-certified obstetrician-gynecologist and founder of JilaMD, a personalized women&rsquo;s midlife health and longevity practice in Miami. With more than 20 years of clinical experience, she specializes in perimenopause and menopause care, evidence-based hormone therapy, metabolic optimization and longevity Medicine, helping women restore energy, resilience, and long-term health through individualized, science-driven care. She is the founder of the Miami Menopause Collective, the EmpowHer Miami woman&rsquo;s health exposition and SecondBloom Health, initiatives dedicated to expanding access to trusted education, community, and modern menopause care. Widely recognized for her clear, compassionate approach and rigorous commitment to evidence-based medicine, Dr. Senemar is a leading voice shaping the future of woman&rsquo;s midlife health and longevity.",
+    "sessions": [
+      "Menopause, Midlife Longevity & Hormone Optimization",
+      "Hormones, Strength & Metabolic Resilience"
+    ]
+  },
+  {
+    "id": "01KSG7F567CKM5H7PFQ",
+    "name": "Lori Hill",
+    "role": "Affiliate Owner",
+    "company": "MetFix Method",
+    "type": "panelist",
+    "website": "https://MetFixMethod.com",
+    "image": "https://brokenscience.org/wp-content/uploads/2025/06/IMG_7195.jpeg",
+    "sessions": []
+  },
+  {
+    "id": "01KKJ8M47FWMNZY6W5F",
+    "name": "Luke Palmisano",
+    "role": "Affiliate Owner & ER Doctor",
+    "company": "Dr Luke P Metabolic Health MetFix",
+    "type": "panelist",
+    "website": "https://www.drlukep.com/",
+    "sessions": []
+  },
+  {
+    "id": "01KCSKAEEPMGBHAE8BB",
+    "name": "Jen Garrett, MPAS, PA-C",
+    "role": "Chair & Program Director",
+    "company": "Mount St. Joseph University",
+    "type": "panelist",
+    "sessions": []
+  },
+  {
+    "id": "01KDTBVP6AVGBCAKZAF",
+    "name": "Patrick Larreategui, DO",
+    "role": "Surgeon",
+    "company": "",
+    "type": "panelist",
+    "sessions": []
+  },
+  {
+    "id": "01KRHY7N0J2X0PB9JEE",
+    "name": "Peter Shaw",
+    "role": "Head of Affiliates / Petra Health MetFix",
+    "company": "Head of Affiliates / Petra Health MetFix",
+    "type": "panelist",
+    "website": "https://Www.petrahealth.ca",
+    "sessions": []
+  },
+  {
+    "id": "01KSG8Y4E66A72EMQV6",
+    "name": "Chris Russell",
+    "role": "Affiliate Owner & Academy Staff",
+    "company": "MetFix Jax",
+    "type": "panelist",
+    "website": "https://www.crossfitjax.com",
+    "sessions": []
+  },
+  {
+    "id": "01KSG9M7MBPKA7TK6E1",
+    "name": "Bob Kaplan",
+    "role": "Head of Research",
+    "company": "Head of Research",
+    "type": "panelist",
+    "website": "https://brokenscience.org",
+    "sessions": []
+  },
+  {
+    "id": "01KSG930EJVS4EPAJZ7",
+    "name": "Dale King",
+    "role": "Head of Affiliates / PSKC MetFix",
+    "company": "Head of Affiliates / PSKC MetFix",
+    "type": "mc",
+    "website": "https://www.pskcstrong.com/",
+    "sessions": []
+  },
+  {
+    "id": "01KSJHZN0QSBKTFH42Z",
+    "name": "Karl Steadman",
+    "role": "Affiliate Owner & Academy Staff",
+    "company": "Ellipsis MetFix",
+    "type": "panelist",
+    "website": "https://www.ellipsistrainingandadventures.com/",
+    "sessions": []
+  },
+  {
+    "id": "01KSGAW830F5EQPXRAR",
+    "name": "Matt Sherburne",
+    "role": "Affiliate Owner & Academy Staff",
+    "company": "Misfit Gym Windham",
+    "type": "panelist",
+    "website": "https://www.misfitgymwindham.com",
+    "sessions": []
+  },
+  {
+    "id": "01KRHK702Z7C81112WB",
+    "name": "Theresa Sbarra",
+    "role": "Affilate Owner & Unbreakable Operations",
+    "company": "MetFix Victor",
+    "type": "panelist",
+    "website": "http://www.crossfit585victor.com",
+    "sessions": []
+  },
+  {
+    "id": "01KRE9XSA83V0PPWCVK",
+    "name": "John Nittolo",
+    "role": "School Superintendent",
+    "company": "MetFix OCS",
+    "type": "panelist",
+    "website": "http://www.oxfordcentral.org",
+    "sessions": []
+  },
+  {
+    "id": "01KR4R5WCJD11MF5P9W",
+    "name": "Abrie Sellers",
+    "role": "Rose City MetFix",
+    "company": "Rose City MetFix",
+    "type": "panelist",
+    "website": "https://rosecitybarbellclub.com",
+    "sessions": []
+  },
+  {
+    "id": "01KRMP072HESJRS6Q5M",
+    "name": "Erin Richter",
+    "role": "Head of Affiliate Outrach / MetFix Bowling Green",
+    "company": "Head of Affiliate Outrach / MetFix Bowling Green",
+    "type": "panelist",
+    "website": "http://www.crossfitoldschool.com",
+    "sessions": []
+  }
+]

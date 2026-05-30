@@ -1,0 +1,387 @@
+{
+  "days": [
+    {
+      "day": 1,
+      "date": "Saturday, May 30, 2026",
+      "agenda": [
+        {
+          "id": "s1-1",
+          "title": "Workout + Visualization for VIP Attendees",
+          "time": "06:00 AM - 07:15 AM",
+          "room": "CrossFit Coconut Grove",
+          "track": "Fitness",
+          "description": "Exclusive morning physical session and mental visualization exercise designed for VIP ticket holders.",
+          "speakers": [
+            "Kenny Santucci",
+            "Dr. Arianna Masotti"
+          ],
+          "sponsor": "CrossFit Coconut Grove"
+        },
+        {
+          "id": "s1-2",
+          "title": "Ruck with GORUCK",
+          "time": "06:15 AM - 07:00 AM",
+          "room": "Meet in Ritz Lobby",
+          "track": "Fitness",
+          "description": "Get moving early with an energetic morning ruck hosted by GORUCK. Meet in the Ritz lobby.",
+          "speakers": [
+            "Whitney Martin"
+          ],
+          "sponsor": "GORUCK"
+        },
+        {
+          "id": "s1-3",
+          "title": "Registration + Breakfast",
+          "time": "08:00 AM - 09:00 AM",
+          "room": "Pre-function",
+          "track": "Wellness",
+          "description": "Check in, receive your summit badge, and enjoy a healthy metabolically-friendly breakfast before the opening keynote.",
+          "speakers": [],
+          "sponsor": "MetFix"
+        },
+        {
+          "id": "s1-4",
+          "title": "Opening Keynote",
+          "time": "09:00 AM - 09:45 AM",
+          "room": "Ballroom (Salon 1 & 2)",
+          "track": "Science & Medicine",
+          "description": "Opening address by Greg Glassman, setting the stage for the metabolic health revolution.",
+          "speakers": [
+            "Greg Glassman"
+          ],
+          "sponsor": "The Broken Science Initiative"
+        },
+        {
+          "id": "s1-5",
+          "title": "Medicine, Media & the Misinformation Machine",
+          "time": "09:50 AM - 10:35 AM",
+          "room": "Ballroom (Salon 1 & 2)",
+          "track": "Science & Medicine",
+          "description": "Dr. Drew Pinsky explores how mainstream media and institutions propagate medical misinformation and capture public trust.",
+          "speakers": [
+            "Dr. Drew Pinsky"
+          ],
+          "sponsor": "MetFix"
+        },
+        {
+          "id": "s1-6",
+          "title": "Coffee + Recovery Break",
+          "time": "10:35 AM - 11:00 AM",
+          "room": "Pre-function",
+          "track": "Wellness",
+          "description": "Grab a hot beverage, stretch, and connect with fellow attendees.",
+          "speakers": [],
+          "sponsor": "MetFix"
+        },
+        {
+          "id": "s1-7",
+          "title": "Panel - Women's Health",
+          "time": "11:00 AM - 11:45 AM",
+          "room": "Ballroom (Salon 1 & 2)",
+          "track": "Clinical Practice",
+          "description": "A deep dive discussion on hormonal balance, longevity, and clinical practice tailored for women's metabolic health.",
+          "speakers": [
+            "Dr. Drew Pinsky",
+            "Emily Kaplan",
+            "Dr. Jaime Seeman",
+            "Dr. Jila Senemar"
+          ],
+          "sponsor": "The Broken Science Initiative"
+        },
+        {
+          "id": "s1-8",
+          "title": "Misinformation in Modern Healthcare: Why Patients Lose",
+          "time": "11:50 AM - 12:35 PM",
+          "room": "Ballroom (Salon 1 & 2)",
+          "track": "Clinical Practice",
+          "description": "Dr. Jaime Seeman discusses the systemic gaps in standard medical advice and how to empower patients.",
+          "speakers": [
+            "Dr. Jaime Seeman"
+          ],
+          "sponsor": "Dr. Fit and Fabulous"
+        },
+        {
+          "id": "s1-9",
+          "title": "Lunch + Experience Activations",
+          "time": "12:35 PM - 01:50 PM",
+          "room": "Salon 3 & 4 / Pre-function",
+          "track": "Wellness",
+          "description": "Enjoy a metabolically optimized whole-food lunch and participate in our experience activations.",
+          "speakers": [],
+          "sponsor": "Primal Kitchen"
+        },
+        {
+          "id": "s1-10",
+          "title": "Speed Conversations",
+          "time": "12:45 PM - 01:15 PM",
+          "room": "Vivaldi",
+          "track": "Networking",
+          "description": "Intimate, fast-paced speed discussions with the core summit faculty and organizers.",
+          "speakers": [
+            "Greg Glassman",
+            "Emily Kaplan",
+            "Mark Sisson",
+            "Kenny Santucci",
+            "Eddie Hertzman",
+            "Prof. Thomas Seyfried",
+            "Dr. Arianna Masotti"
+          ],
+          "sponsor": "MetFix"
+        },
+        {
+          "id": "s1-11",
+          "title": "Cholesterol Science: What's Broken, and What Isn't",
+          "time": "01:50 PM - 02:35 PM",
+          "room": "Ballroom (Salon 1 & 2)",
+          "track": "Science & Medicine",
+          "description": "Dave Feldman presents citizen science research on cholesterol, energy dynamics, and metabolic pathways.",
+          "speakers": [
+            "Dave Feldman"
+          ],
+          "sponsor": "Cholesterol Code"
+        },
+        {
+          "id": "s1-12",
+          "title": "Panel - MetFix for Healthcare Professionals",
+          "time": "02:40 PM - 03:25 PM",
+          "room": "Ballroom (Salon 1 & 2)",
+          "track": "Clinical Practice",
+          "description": "Discover how practitioners are integrating metabolic training and functional nutrition directly into clinical settings.",
+          "speakers": [
+            "Emily Kaplan",
+            "Dr. Patrick Larreategui",
+            "Dr. Luke Palmisano",
+            "Jen Garrett"
+          ],
+          "sponsor": "MetFix"
+        },
+        {
+          "id": "s1-13",
+          "title": "Coffee + Recovery Break",
+          "time": "03:25 PM - 03:50 PM",
+          "room": "Pre-function",
+          "track": "Wellness",
+          "description": "Recharge with recovery activations and hot drinks.",
+          "speakers": [],
+          "sponsor": "MetFix"
+        },
+        {
+          "id": "s1-14",
+          "title": "Panel - Disruptors of Health in Chronic Disease",
+          "time": "03:50 PM - 04:35 PM",
+          "room": "Ballroom (Salon 1 & 2)",
+          "track": "Science & Medicine",
+          "description": "Challenging conventional therapeutic guidelines for chronic metabolic and oncological conditions.",
+          "speakers": [
+            "Dr. Drew Pinsky",
+            "Prof. Thomas Seyfried",
+            "Dave Feldman",
+            "Emily Kaplan"
+          ],
+          "sponsor": "The Broken Science Initiative"
+        },
+        {
+          "id": "s1-15",
+          "title": "Day 1 Closing Remarks",
+          "time": "04:40 PM - 05:00 PM",
+          "room": "Ballroom (Salon 1 & 2)",
+          "track": "Wellness",
+          "description": "Wrapping up Day 1 insights and previewing the action plan for Day 2.",
+          "speakers": [
+            "Emily Kaplan"
+          ],
+          "sponsor": "MetFix"
+        }
+      ]
+    },
+    {
+      "day": 2,
+      "date": "Sunday, May 31, 2026",
+      "agenda": [
+        {
+          "id": "s2-1",
+          "title": "Workout + Visualization for VIP Attendees",
+          "time": "06:00 AM - 07:15 AM",
+          "room": "CrossFit Coconut Grove",
+          "track": "Fitness",
+          "description": "Exclusive physical conditioning and mental preparation session for VIP ticket holders.",
+          "speakers": [
+            "Kenny Santucci",
+            "Dr. Arianna Masotti"
+          ],
+          "sponsor": "CrossFit Coconut Grove"
+        },
+        {
+          "id": "s2-2",
+          "title": "Ruck with GORUCK",
+          "time": "06:15 AM - 07:00 AM",
+          "room": "Meet in Ritz Lobby",
+          "track": "Fitness",
+          "description": "Early morning ruck with GORUCK. Meet in the lobby.",
+          "speakers": [
+            "Whitney Martin"
+          ],
+          "sponsor": "GORUCK"
+        },
+        {
+          "id": "s2-3",
+          "title": "Registration + Breakfast",
+          "time": "08:00 AM - 09:00 AM",
+          "room": "Pre-function",
+          "track": "Wellness",
+          "description": "Fuel up with breakfast and coffee before the opening morning keynote.",
+          "speakers": [],
+          "sponsor": "MetFix"
+        },
+        {
+          "id": "s2-4",
+          "title": "Opening Keynote - From Truth to Action: Applying What We Know",
+          "time": "09:00 AM - 09:45 AM",
+          "room": "Ballroom (Salon 1 & 2)",
+          "track": "Science & Medicine",
+          "description": "Emily Kaplan kicks off Day 2 with an action-oriented address on translating metabolic truth into practical medicine.",
+          "speakers": [
+            "Emily Kaplan"
+          ],
+          "sponsor": "The Broken Science Initiative"
+        },
+        {
+          "id": "s2-5",
+          "title": "The Truth About Health & Longevity: What Actually Moves the Needle",
+          "time": "09:50 AM - 10:35 AM",
+          "room": "Ballroom (Salon 1 & 2)",
+          "track": "Wellness",
+          "description": "Mark Sisson details the foundational physical and lifestyle changes that drive genuine longevity.",
+          "speakers": [
+            "Mark Sisson"
+          ],
+          "sponsor": "Primal Kitchen"
+        },
+        {
+          "id": "s2-6",
+          "title": "Coffee + Connection Break",
+          "time": "10:35 AM - 11:00 AM",
+          "room": "Pre-function",
+          "track": "Wellness",
+          "description": "Network with sponsors, check out exhibitor booths, and grab a coffee.",
+          "speakers": [],
+          "sponsor": "MetFix"
+        },
+        {
+          "id": "s2-7",
+          "title": "Panel - Building a Health Revolution: MetFix Academy",
+          "time": "11:00 AM - 11:45 AM",
+          "room": "Ballroom (Salon 1 & 2)",
+          "track": "Business",
+          "description": "Meet the minds behind MetFix Academy and learn how they are training the next generation of coaches and health experts.",
+          "speakers": [
+            "Pete Shaw",
+            "Chris Russell",
+            "Matt Sherburne",
+            "Karl Steadman",
+            "Bob Kaplan"
+          ],
+          "sponsor": "MetFix"
+        },
+        {
+          "id": "s2-8",
+          "title": "Panel - The Future of Community Fitness & Health",
+          "time": "11:50 AM - 12:35 PM",
+          "room": "Ballroom (Salon 1 & 2)",
+          "track": "Business",
+          "description": "A collaborative panel on the evolving role of local fitness spaces in driving preventative metabolic medicine.",
+          "speakers": [
+            "Eddie Hertzman",
+            "Kenny Santucci",
+            "Emily Kaplan",
+            "Mark Sisson",
+            "Dr. Luke Palmisano"
+          ],
+          "sponsor": "Athletech News"
+        },
+        {
+          "id": "s2-9",
+          "title": "Lunch + Activations",
+          "time": "12:35 PM - 01:50 PM",
+          "room": "Salon 3 & 4 / Pre-function",
+          "track": "Wellness",
+          "description": "Healthy lunch and recovery/wellness activations.",
+          "speakers": [],
+          "sponsor": "Primal Kitchen"
+        },
+        {
+          "id": "s2-10",
+          "title": "Speed Conversations",
+          "time": "12:45 PM - 01:15 PM",
+          "room": "Vivaldi",
+          "track": "Networking",
+          "description": "Quick round-robin discussions with summit speakers.",
+          "speakers": [
+            "Emily Kaplan",
+            "Mark Sisson",
+            "Kenny Santucci",
+            "Eddie Hertzman",
+            "Prof. Thomas Seyfried"
+          ],
+          "sponsor": "MetFix"
+        },
+        {
+          "id": "s2-11",
+          "title": "Cancer as a Metabolic Disease",
+          "time": "01:50 PM - 02:35 PM",
+          "room": "Ballroom (Salon 1 & 2)",
+          "track": "Science & Medicine",
+          "description": "Prof. Thomas Seyfried presents evidence-based clinical metabolic strategies for managing oncological progression.",
+          "speakers": [
+            "Prof. Thomas Seyfried"
+          ],
+          "sponsor": "The Broken Science Initiative"
+        },
+        {
+          "id": "s2-12",
+          "title": "Cancer Panel",
+          "time": "02:40 PM - 03:25 PM",
+          "room": "Ballroom (Salon 1 & 2)",
+          "track": "Science & Medicine",
+          "description": "Discussing metabolic alternatives and complementary protocols for cancer therapies.",
+          "speakers": [
+            "Emily Kaplan",
+            "Bob Kaplan",
+            "Prof. Thomas Seyfried"
+          ],
+          "sponsor": "The Broken Science Initiative"
+        },
+        {
+          "id": "s2-13",
+          "title": "Panel - What Is MetFix?",
+          "time": "03:30 PM - 04:15 PM",
+          "room": "Ballroom (Salon 1 & 2)",
+          "track": "Business",
+          "description": "An introduction to MetFix's core methodology, software solutions, and ecosystem.",
+          "speakers": [
+            "Emily Kaplan",
+            "Lori Hill",
+            "Erin Richer",
+            "Matt Sherburne",
+            "Theresa Sbarra",
+            "Abrie Jane",
+            "John Nittolo"
+          ],
+          "sponsor": "MetFix"
+        },
+        {
+          "id": "s2-14",
+          "title": "Closing Remarks",
+          "time": "04:15 PM - 05:00 PM",
+          "room": "Ballroom (Salon 1 & 2)",
+          "track": "Wellness",
+          "description": "Final remarks and next steps for the MetFix health community.",
+          "speakers": [
+            "Emily Kaplan"
+          ],
+          "sponsor": "MetFix"
+        }
+      ]
+    }
+  ]
+}

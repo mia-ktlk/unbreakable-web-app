@@ -1,0 +1,681 @@
+[
+  {
+    "id": "01KSG9HP9X4QDSR7REY",
+    "name": "Emily Kaplan",
+    "role": "CEO and CoFounder of MetFix",
+    "company": "CEO and CoFounder of MetFix",
+    "type": "speaker",
+    "website": "https://brokenscience.org"
+  },
+  {
+    "id": "01KSG9P49FTMBWXY106",
+    "name": "Greg Glassman",
+    "role": "CoFounder of MetFix",
+    "company": "CoFounder of MetFix",
+    "type": "speaker",
+    "website": "https://brokenscience.org"
+  },
+  {
+    "id": "01KSG97CEJ0TDYMQPNM",
+    "name": "Dave Feldman",
+    "role": "Software Engineer and Founder, Cholesterol Code",
+    "company": "Software Engineer and Founder, Cholesterol Code",
+    "type": "speaker"
+  },
+  {
+    "id": "01KSGAS4MVZBP46JM5X",
+    "name": "Mark Sisson",
+    "role": "Author and Health Researcher",
+    "company": "Author and Health Researcher",
+    "type": "speaker"
+  },
+  {
+    "id": "01KSG9B7SK90424AJ9V",
+    "name": "Dr. Jaime Seeman",
+    "role": "Board-Certified Obstetrician and Gynecologist",
+    "company": "Board-Certified Obstetrician and Gynecologist",
+    "type": "speaker"
+  },
+  {
+    "id": "01KSGA9H6ETF574X35G",
+    "name": "Thomas Seyfried, PHD",
+    "role": "Professor of Biology, Boston College",
+    "company": "Professor of Biology, Boston College",
+    "type": "speaker"
+  },
+  {
+    "id": "01KSG99GEQXJVSJCTAW",
+    "name": "Drew Pinsky, M.D.",
+    "role": "Physician and Broadcaster",
+    "company": "Physician and Broadcaster",
+    "type": "speaker"
+  },
+  {
+    "id": "01KSGA43KDKNK6TQRHG",
+    "name": "Kenny Santucci",
+    "role": "Fitness Entrepreneur, Coach, and Community Leader",
+    "company": "Fitness Entrepreneur, Coach, and Community Leader",
+    "type": "speaker"
+  },
+  {
+    "id": "01KSG9FFK42B54HGBYM",
+    "name": "Eddie Hertzman",
+    "role": "Founder, Athletech News",
+    "company": "Founder, Athletech News",
+    "type": "speaker"
+  },
+  {
+    "id": "01KSG8KMNJN8R6XDK8A",
+    "name": "Arianna Masotti, PSYD",
+    "role": "Clinical Psychologist and Founder, The Bloome Method",
+    "company": "Clinical Psychologist and Founder, The Bloome Method",
+    "type": "speaker"
+  },
+  {
+    "id": "01KSG9DD3RASEDRJ45R",
+    "name": "Dr. Jila Senemar",
+    "role": "Board Certified Obstetrician-Gynecologist",
+    "company": "Board Certified Obstetrician-Gynecologist",
+    "type": "speaker"
+  },
+  {
+    "id": "01KSG7F567CKM5H7PFQ",
+    "name": "Lori Hill",
+    "role": "MetFix Method",
+    "company": "MetFix Method",
+    "type": "panelist",
+    "website": "https://MetFixMethod.com"
+  },
+  {
+    "id": "01KKJ8M47FWMNZY6W5F",
+    "name": "Luke Palmisano",
+    "role": "Dr Luke P Metabolic Health MetFix",
+    "company": "Dr Luke P Metabolic Health MetFix",
+    "type": "panelist",
+    "website": "https://www.drlukep.com/"
+  },
+  {
+    "id": "01KCSKAEEPMGBHAE8BB",
+    "name": "Jen Garrett",
+    "role": "",
+    "company": "",
+    "type": "panelist"
+  },
+  {
+    "id": "01KDTBVP6AVGBCAKZAF",
+    "name": "Patrick Larreategui",
+    "role": "",
+    "company": "",
+    "type": "panelist"
+  },
+  {
+    "id": "01KRHY7N0J2X0PB9JEE",
+    "name": "Peter Shaw",
+    "role": "Head of Affiliates / Petra Health MetFix",
+    "company": "Head of Affiliates / Petra Health MetFix",
+    "type": "panelist",
+    "website": "https://Www.petrahealth.ca"
+  },
+  {
+    "id": "01KSG8Y4E66A72EMQV6",
+    "name": "Chris Russell",
+    "role": "MetFix Jax",
+    "company": "MetFix Jax",
+    "type": "panelist",
+    "website": "https://www.crossfitjax.com"
+  },
+  {
+    "id": "01KSG9M7MBPKA7TK6E1",
+    "name": "Bob Kaplan",
+    "role": "Head of Research",
+    "company": "Head of Research",
+    "type": "panelist",
+    "website": "https://brokenscience.org"
+  },
+  {
+    "id": "01KSG930EJVS4EPAJZ7",
+    "name": "Dale King",
+    "role": "Head of Affiliates / PSKC MetFix",
+    "company": "Head of Affiliates / PSKC MetFix",
+    "type": "mc",
+    "website": "https://www.pskcstrong.com/"
+  },
+  {
+    "id": "01KSJHZN0QSBKTFH42Z",
+    "name": "Karl Steadman",
+    "role": "Ellipsis MetFix",
+    "company": "Ellipsis MetFix",
+    "type": "panelist",
+    "website": "https://www.ellipsistrainingandadventures.com/"
+  },
+  {
+    "id": "01KSGAW830F5EQPXRAR",
+    "name": "Matt Sherburne",
+    "role": "Misfit Gym Windham",
+    "company": "Misfit Gym Windham",
+    "type": "panelist",
+    "website": "https://www.misfitgymwindham.com"
+  },
+  {
+    "id": "01KRHK702Z7C81112WB",
+    "name": "Theresa Sbarra",
+    "role": "MetFix Victor",
+    "company": "MetFix Victor",
+    "type": "panelist",
+    "website": "http://www.crossfit585victor.com"
+  },
+  {
+    "id": "01KRE9XSA83V0PPWCVK",
+    "name": "John Nittolo",
+    "role": "MetFix OCS",
+    "company": "MetFix OCS",
+    "type": "panelist",
+    "website": "http://www.oxfordcentral.org"
+  },
+  {
+    "id": "01KR4R5WCJD11MF5P9W",
+    "name": "Abrie Sellers",
+    "role": "Rose City MetFix",
+    "company": "Rose City MetFix",
+    "type": "panelist",
+    "website": "https://rosecitybarbellclub.com"
+  },
+  {
+    "id": "01KRMP072HESJRS6Q5M",
+    "name": "Erin Richter",
+    "role": "Head of Affiliate Outreach / MetFix Bowling Green",
+    "company": "Head of Affiliate Outreach / MetFix Bowling Green",
+    "type": "panelist",
+    "website": "http://www.crossfitoldschool.com"
+  },
+  {
+    "id": "01KR4Q53CFMHB50CD2R",
+    "name": "Manny Alayon",
+    "role": "Westchester MetFix",
+    "company": "Westchester MetFix",
+    "type": "attendee"
+  },
+  {
+    "id": "01KS914B32W5A4HJJP2",
+    "name": "Catharine Arnston",
+    "role": "",
+    "company": "",
+    "type": "attendee"
+  },
+  {
+    "id": "01KNS92C7HESJ03CMJ0",
+    "name": "Gordon Barkley",
+    "role": "MetFix Coach",
+    "company": "MetFix Coach",
+    "type": "attendee"
+  },
+  {
+    "id": "01KSGBSR2Z7Q6VGT20N",
+    "name": "Maddie Bauer",
+    "role": "Niagen",
+    "company": "Niagen",
+    "type": "attendee"
+  },
+  {
+    "id": "01KSGA82TG9AM8WAJD0",
+    "name": "Paulina Braden",
+    "role": "BSI Staff",
+    "company": "BSI Staff",
+    "type": "attendee"
+  },
+  {
+    "id": "01KGXKF1MZ59294746W",
+    "name": "Lorna Brudie",
+    "role": "",
+    "company": "",
+    "type": "attendee"
+  },
+  {
+    "id": "01KQ30NQJ38PMNKACFY",
+    "name": "Scot Campbell",
+    "role": "",
+    "company": "",
+    "type": "attendee"
+  },
+  {
+    "id": "01KSGB3Y99MPKP928DQ",
+    "name": "TJ Cooper",
+    "role": "MetFix Jax",
+    "company": "MetFix Jax",
+    "type": "attendee"
+  },
+  {
+    "id": "01KSGCFXNJQ713BAN06",
+    "name": "Sharon delPilar",
+    "role": "",
+    "company": "",
+    "type": "attendee"
+  },
+  {
+    "id": "01KSGA0AHG6YZJ7RKPH",
+    "name": "Grant Dickson",
+    "role": "",
+    "company": "",
+    "type": "attendee"
+  },
+  {
+    "id": "01KRHHYPYSE3R6W9KDB",
+    "name": "Franco Duboc",
+    "role": "CrossFit Unbounded",
+    "company": "CrossFit Unbounded",
+    "type": "attendee"
+  },
+  {
+    "id": "01KRHHYQDP3P0FABT4E",
+    "name": "Michelle Duboc",
+    "role": "CrossFit Unbounded",
+    "company": "CrossFit Unbounded",
+    "type": "attendee"
+  },
+  {
+    "id": "01KR4R7S64PNC68YQ97",
+    "name": "Edgar Duron",
+    "role": "MetFix San Clemente",
+    "company": "MetFix San Clemente",
+    "type": "attendee"
+  },
+  {
+    "id": "01KSGA6J83EYSDCX410",
+    "name": "Leif Edmonson",
+    "role": "BSI Staff",
+    "company": "BSI Staff",
+    "type": "attendee"
+  },
+  {
+    "id": "01KDK0M2PB8KYKZGEDX",
+    "name": "Ed Farina",
+    "role": "GrandMastersRx MetFix",
+    "company": "GrandMastersRx MetFix",
+    "type": "attendee"
+  },
+  {
+    "id": "01KDK0M24SAGG5GF1YK",
+    "name": "Samantha Farina",
+    "role": "GrandMastersRx MetFix",
+    "company": "GrandMastersRx MetFix",
+    "type": "attendee"
+  },
+  {
+    "id": "01KF451PHJHGFB646CR",
+    "name": "Rick Garcia",
+    "role": "MetFix Militia",
+    "company": "MetFix Militia",
+    "type": "attendee"
+  },
+  {
+    "id": "01KCSKAF05J995DR6Z5",
+    "name": "Chad Garrett",
+    "role": "",
+    "company": "",
+    "type": "attendee"
+  },
+  {
+    "id": "01KRHM196NQRH0S3QS9",
+    "name": "Jess Good",
+    "role": "MilFix / BSI",
+    "company": "MilFix / BSI",
+    "type": "attendee"
+  },
+  {
+    "id": "01KRA47RN0EFE7R9KRY",
+    "name": "Nicole Greco-Peepas",
+    "role": "",
+    "company": "",
+    "type": "attendee"
+  },
+  {
+    "id": "01KDVGTNKCS89FMCN46",
+    "name": "Jeremy Hale",
+    "role": "Desert Devil Metfix",
+    "company": "Desert Devil Metfix",
+    "type": "attendee"
+  },
+  {
+    "id": "01KEJ2Y0CY4D3GN3CRJ",
+    "name": "Rick Henthorn",
+    "role": "MetFix Coach",
+    "company": "MetFix Coach",
+    "type": "attendee"
+  },
+  {
+    "id": "01KSK9VPTMEAQJXY45P",
+    "name": "Tim Hill",
+    "role": "MetFix Method",
+    "company": "MetFix Method",
+    "type": "attendee"
+  },
+  {
+    "id": "01KR1SQQ77HWXKDCSQ3",
+    "name": "John Hogan",
+    "role": "",
+    "company": "",
+    "type": "attendee"
+  },
+  {
+    "id": "01KRY20EA1QWBKPBG4W",
+    "name": "Sandra Jones",
+    "role": "",
+    "company": "",
+    "type": "attendee"
+  },
+  {
+    "id": "01KSGAY3DVTRG9GA9H5",
+    "name": "Mia Kotalik",
+    "role": "BSI",
+    "company": "BSI",
+    "type": "attendee"
+  },
+  {
+    "id": "01KDTBVPR2YGGHD0MNZ",
+    "name": "Luke Larreategui",
+    "role": "",
+    "company": "",
+    "type": "attendee"
+  },
+  {
+    "id": "01KRHKKTNJRT40205X7",
+    "name": "Melissa Leavitt",
+    "role": "Metfix Ormond",
+    "company": "Metfix Ormond",
+    "type": "attendee"
+  },
+  {
+    "id": "01KR4PV3S83DB7GREPH",
+    "name": "Derek Lee",
+    "role": "MetFix Coach",
+    "company": "MetFix Coach",
+    "type": "attendee"
+  },
+  {
+    "id": "01KR4NX2N3DJA2JSSED",
+    "name": "William Lyman",
+    "role": "MetFix Megalodon",
+    "company": "MetFix Megalodon",
+    "type": "attendee"
+  },
+  {
+    "id": "01KSGB63J6S8S3ABQYY",
+    "name": "Whitney Martin",
+    "role": "",
+    "company": "",
+    "type": "attendee"
+  },
+  {
+    "id": "01KSG8KMNJN8R6XDK8A",
+    "name": "Arianna Masotti",
+    "role": "",
+    "company": "",
+    "type": "attendee"
+  },
+  {
+    "id": "01KSGBAR52E61JV8M3C",
+    "name": "Emily Mercer",
+    "role": "",
+    "company": "",
+    "type": "attendee"
+  },
+  {
+    "id": "01KSGBDH4A357QN85AQ",
+    "name": "Maria Micciollo",
+    "role": "",
+    "company": "",
+    "type": "attendee"
+  },
+  {
+    "id": "01KSG9R22ZGJDWMAY0R",
+    "name": "Hollis Molloy",
+    "role": "MetFix Santa Cruz",
+    "company": "MetFix Santa Cruz",
+    "type": "attendee"
+  },
+  {
+    "id": "01KCWMXEEAX40Q1T35X",
+    "name": "Jennifer Montgomery",
+    "role": "MetFix Winter Park",
+    "company": "MetFix Winter Park",
+    "type": "attendee"
+  },
+  {
+    "id": "01KRRWKJH5ARKTAC6ED",
+    "name": "Ken Myers",
+    "role": "",
+    "company": "",
+    "type": "attendee"
+  },
+  {
+    "id": "01KCWMXDWM1HWHY3KZ4",
+    "name": "Stephanie Nickitas",
+    "role": "MetFix Winter Park",
+    "company": "MetFix Winter Park",
+    "type": "attendee"
+  },
+  {
+    "id": "01KSGBXFZNM1ZHC8A73",
+    "name": "Claudia Ortiz, R.N.",
+    "role": "Niagen",
+    "company": "Niagen",
+    "type": "attendee"
+  },
+  {
+    "id": "01KSGBNWYM9Y949AZXM",
+    "name": "Batel Ouda",
+    "role": "Niagen",
+    "company": "Niagen",
+    "type": "attendee"
+  },
+  {
+    "id": "01KSG9YZQ091R22NTVX",
+    "name": "Gioconda Pico",
+    "role": "",
+    "company": "",
+    "type": "attendee"
+  },
+  {
+    "id": "01KRHZEPKTBTJRXB1WT",
+    "name": "Marcelo Pimenta",
+    "role": "",
+    "company": "",
+    "type": "attendee"
+  },
+  {
+    "id": "01KSG99GEQXJVSJCTAW",
+    "name": "Dr. Drew Pinsky",
+    "role": "",
+    "company": "",
+    "type": "attendee"
+  },
+  {
+    "id": "01KSGC5A6N5PYDA76BE",
+    "name": "Susan Pinsky",
+    "role": "",
+    "company": "",
+    "type": "attendee"
+  },
+  {
+    "id": "01KMEF5FKC9EF1TWAD4",
+    "name": "Rachel Polinski",
+    "role": "",
+    "company": "",
+    "type": "attendee"
+  },
+  {
+    "id": "01KS073E74CJZG739ZJ",
+    "name": "Jamie Rawlinson",
+    "role": "",
+    "company": "",
+    "type": "attendee"
+  },
+  {
+    "id": "01KM68B01GDDKRT1C1B",
+    "name": "Arturo Rodriguez",
+    "role": "",
+    "company": "",
+    "type": "attendee"
+  },
+  {
+    "id": "01KM68B01D63S3HDJY1",
+    "name": "Maggie Rodriguez",
+    "role": "",
+    "company": "",
+    "type": "attendee"
+  },
+  {
+    "id": "01KSGBQQMPY1FPAF88T",
+    "name": "Mona Rosene",
+    "role": "Niagen",
+    "company": "Niagen",
+    "type": "attendee"
+  },
+  {
+    "id": "01KSGBW7JTKK4TYQV0V",
+    "name": "Yunaisy Ruiz, R.N.",
+    "role": "Niagen",
+    "company": "Niagen",
+    "type": "attendee"
+  },
+  {
+    "id": "01KRHJTXTKZHB6KAW2W",
+    "name": "Ethan Rush",
+    "role": "BSI Staff",
+    "company": "BSI Staff",
+    "type": "attendee"
+  },
+  {
+    "id": "01KP3PVBSA68N950KR7",
+    "name": "Dusty Russell",
+    "role": "MetFix Blueprint",
+    "company": "MetFix Blueprint",
+    "type": "attendee"
+  },
+  {
+    "id": "01KSGA9H6ETF574X35G",
+    "name": "Prof. Thomas Seyfried",
+    "role": "",
+    "company": "",
+    "type": "attendee"
+  },
+  {
+    "id": "01KRJZNWV2X2C178P93",
+    "name": "Noel Sherburne",
+    "role": "Westbrook Vocational Center",
+    "company": "Westbrook Vocational Center",
+    "type": "attendee"
+  },
+  {
+    "id": "01KSJJ1SCWT0RWKHWNQ",
+    "name": "Aubrey Sherman",
+    "role": "",
+    "company": "",
+    "type": "attendee"
+  },
+  {
+    "id": "01KSG90ERKMFR1ER6M2",
+    "name": "Connor Sherman",
+    "role": "BSI",
+    "company": "BSI",
+    "type": "attendee"
+  },
+  {
+    "id": "01KSGBMHC6NZ7BZCV79",
+    "name": "Tatyana Shpegel",
+    "role": "Niagen",
+    "company": "Niagen",
+    "type": "attendee"
+  },
+  {
+    "id": "01KDNTVFM999MRKRTEJ",
+    "name": "Elizabeth Siskron",
+    "role": "MetFix Coach",
+    "company": "MetFix Coach",
+    "type": "attendee"
+  },
+  {
+    "id": "01KDNTVF09NNRJPV1N9",
+    "name": "Tom Siskron",
+    "role": "MetFix Coach",
+    "company": "MetFix Coach",
+    "type": "attendee"
+  },
+  {
+    "id": "01KR4V1MHAHQMY4XMTV",
+    "name": "Vic Skeens",
+    "role": "",
+    "company": "",
+    "type": "attendee"
+  },
+  {
+    "id": "01KR1Z605R1VQJCWNTV",
+    "name": "Jaqui Spiegel",
+    "role": "",
+    "company": "",
+    "type": "attendee"
+  },
+  {
+    "id": "01KR4V1MH71VEDSC591",
+    "name": "Christi St Cyr",
+    "role": "PSKC MetFix",
+    "company": "PSKC MetFix",
+    "type": "attendee"
+  },
+  {
+    "id": "01KSJJRBT1Z6EPJ01XY",
+    "name": "Jeremy St. Jean",
+    "role": "",
+    "company": "",
+    "type": "attendee"
+  },
+  {
+    "id": "01KSG9T2XBTRR7GV0WZ",
+    "name": "Karen Thompson",
+    "role": "BSI",
+    "company": "BSI",
+    "type": "attendee"
+  },
+  {
+    "id": "01KS914A4K2DJ3VAAV9",
+    "name": "Jamie Thomson",
+    "role": "",
+    "company": "",
+    "type": "attendee"
+  },
+  {
+    "id": "01KS914AKW7M636QVPX",
+    "name": "Luke Thomson",
+    "role": "",
+    "company": "",
+    "type": "attendee"
+  },
+  {
+    "id": "01KMXKX3W9E72PR7GH1",
+    "name": "james thornton",
+    "role": "",
+    "company": "",
+    "type": "attendee"
+  },
+  {
+    "id": "01KSJJH9CSVQXGK30TJ",
+    "name": "Jimmy Wadell",
+    "role": "",
+    "company": "",
+    "type": "attendee"
+  },
+  {
+    "id": "01KNEYJ2HKP32SKCN8X",
+    "name": "Michael Waters",
+    "role": "",
+    "company": "",
+    "type": "attendee"
+  },
+  {
+    "id": "01KN2P8DHDHAYFH4BBE",
+    "name": "monique waters",
+    "role": "MetFix Pace",
+    "company": "MetFix Pace",
+    "type": "attendee"
+  }
+]

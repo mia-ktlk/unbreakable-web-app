@@ -18,6 +18,7 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    environment: github-pages
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -47,6 +48,8 @@ jobs:
         run: pnpm run build:pages
         env:
           BASE_PATH: ${{ env.BASE_PATH }}
+          VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ vars.VITE_SUPABASE_ANON_KEY }}
 
       - name: Add SPA fallback for client-side routing
         run: cp dist/public/index.html dist/public/404.html

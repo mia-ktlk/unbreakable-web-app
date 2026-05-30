@@ -32,7 +32,9 @@ import {
   Mic,
   LogIn,
   User,
-  LogOut
+  LogOut,
+  Pencil,
+  Loader2
 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -41,6 +43,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
+import { Label } from "@/components/ui/label";
 import { Html5Qrcode } from "html5-qrcode";
 import { useRef } from "react";
 
@@ -78,6 +81,20 @@ const initialScheduleTestIso = loadInitialScheduleTest();
 if (initialScheduleTestIso) {
   setScheduleTestNow(initialScheduleTestIso);
 }
+import { isSupabaseConfigured } from "@/lib/supabase";
+import {
+  applyProfileOverride,
+  fetchProfileOverrides,
+  mergeMembersWithOverrides,
+  updateProfile,
+} from "@/lib/profiles";
+import { hasContactDetails, MemberSocialLinks } from "@/components/MemberSocialLinks";
+import {
+  loadAndMergeUserSavedData,
+  saveUserSavedData,
+  UserSavedData,
+  writeLocalUserSavedData,
+} from "@/lib/userData";
 
 const speakerPlaceholderUrl = (name = "Speaker") =>
   `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(name)}&backgroundColor=121214&textColor=D4AF37`;
@@ -162,6 +179,18 @@ export default function Home() {
   // Auth states
   const [loggedInUser, setLoggedInUser] = useState<Member | null>(null);
   const [profileOpen, setProfileOpen] = useState(false);
+  const [isEditingProfile, setIsEditingProfile] = useState(false);
+  const [isSavingProfile, setIsSavingProfile] = useState(false);
+  const [profileForm, setProfileForm] = useState({
+    email: "",
+    phone: "",
+    website: "",
+    company: "",
+    role: "",
+    instagram: "",
+    facebook: "",
+    linkedin: "",
+  });
 
   // Login scanner states
   const loginQrScannerRef = useRef<Html5Qrcode | null>(null);
@@ -182,6 +211,8 @@ export default function Home() {
   const [selectedAttendee, setSelectedAttendee] = useState<Member | null>(null);
   const [feedbackOpen, setFeedbackOpen] = useState(false);
 
+  const cloudSyncTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
   // Load static JSON data
   useEffect(() => {
     const loadData = async () => {
@@ -193,12 +224,37 @@ export default function Home() {
           fetch(publicUrl("data/exhibitors.json")).then(r => r.json()),
           fetch(publicUrl("data/members.json")).then(r => r.json())
         ]);
+
+        let mergedMembers: Member[] = resMembers;
+        let mergedSpeakers: Speaker[] = resSpeakers;
+
+        if (isSupabaseConfigured()) {
+          try {
+            const overrides = await fetchProfileOverrides();
+            mergedMembers = mergeMembersWithOverrides(resMembers, overrides);
+            mergedSpeakers = mergeMembersWithOverrides(resSpeakers, overrides);
+          } catch (overrideError) {
+            console.warn("Profile overrides unavailable, using static data only.", overrideError);
+          }
+        }
         
-        setSpeakers(resSpeakers);
+        setSpeakers(mergedSpeakers);
         setSchedule(resSchedule.days);
         setSponsors(resSponsors);
         setExhibitors(resExhibitors);
-        setMembers(resMembers);
+        setMembers(mergedMembers);
+
+        const savedUser = localStorage.getItem("metfix_user");
+        if (savedUser) {
+          const parsed = JSON.parse(savedUser) as Member;
+          const freshUser =
+            mergedMembers.find((member) => member.id === parsed.id) ??
+            mergedSpeakers.find((speaker) => speaker.id === parsed.id);
+          if (freshUser) {
+            setLoggedInUser(freshUser);
+            saveToLocalStorage("metfix_user", freshUser);
+          }
+        }
       } catch (error) {
         console.error("Error loading conference data:", error);
         toast.error("Failed to load conference directory data.");
@@ -223,9 +279,6 @@ export default function Home() {
 
     const favExhibitors = localStorage.getItem("metfix_fav_exhibitors");
     if (favExhibitors) setFavoriteExhibitors(JSON.parse(favExhibitors));
-
-    const savedUser = localStorage.getItem("metfix_user");
-    if (savedUser) setLoggedInUser(JSON.parse(savedUser));
   }, []);
 
   // Automatically scroll to the top of the window when switching tabs or routes
@@ -257,6 +310,57 @@ export default function Home() {
   const saveToLocalStorage = (key: string, data: any) => {
     localStorage.setItem(key, JSON.stringify(data));
   };
+
+  const buildSavedData = (patch: Partial<UserSavedData>): UserSavedData => ({
+    favoriteSpeakers: patch.favoriteSpeakers ?? favoriteSpeakers,
+    favoriteSessions: patch.favoriteSessions ?? favoriteSessions,
+    favoriteSponsors: patch.favoriteSponsors ?? favoriteSponsors,
+    favoriteExhibitors: patch.favoriteExhibitors ?? favoriteExhibitors,
+    scans: patch.scans ?? savedScans,
+  });
+
+  const commitSavedData = (patch: Partial<UserSavedData>) => {
+    const data = buildSavedData(patch);
+    setSavedScans(data.scans);
+    setFavoriteSpeakers(data.favoriteSpeakers);
+    setFavoriteSessions(data.favoriteSessions);
+    setFavoriteSponsors(data.favoriteSponsors);
+    setFavoriteExhibitors(data.favoriteExhibitors);
+    writeLocalUserSavedData(data);
+
+    if (loggedInUser?.id && isSupabaseConfigured()) {
+      if (cloudSyncTimeoutRef.current) {
+        clearTimeout(cloudSyncTimeoutRef.current);
+      }
+      cloudSyncTimeoutRef.current = setTimeout(() => {
+        saveUserSavedData(loggedInUser.id, data).catch((error) => {
+          console.warn("Failed to save user data to cloud:", error);
+        });
+      }, 600);
+    }
+  };
+
+  // Load cloud saved data when logged in
+  useEffect(() => {
+    if (!loggedInUser?.id || !isSupabaseConfigured()) return;
+
+    let cancelled = false;
+    loadAndMergeUserSavedData(loggedInUser.id)
+      .then((merged) => {
+        if (cancelled) return;
+        setSavedScans(merged.scans);
+        setFavoriteSpeakers(merged.favoriteSpeakers);
+        setFavoriteSessions(merged.favoriteSessions);
+        setFavoriteSponsors(merged.favoriteSponsors);
+        setFavoriteExhibitors(merged.favoriteExhibitors);
+        writeLocalUserSavedData(merged);
+      })
+      .catch((error) => console.warn("Failed to load saved data:", error));
+
+    return () => {
+      cancelled = true;
+    };
+  }, [loggedInUser?.id]);
 
   const handleTabChange = (value: string) => {
     setLocation(`/${value}`);
@@ -304,8 +408,7 @@ export default function Home() {
     const updated = favoriteSpeakers.includes(id)
       ? favoriteSpeakers.filter(x => x !== id)
       : [...favoriteSpeakers, id];
-    setFavoriteSpeakers(updated);
-    saveToLocalStorage("metfix_fav_speakers", updated);
+    commitSavedData({ favoriteSpeakers: updated });
     toast.success(favoriteSpeakers.includes(id) ? "Removed from favorites" : "Added to favorites");
   };
 
@@ -314,8 +417,7 @@ export default function Home() {
     const updated = favoriteSessions.includes(id)
       ? favoriteSessions.filter(x => x !== id)
       : [...favoriteSessions, id];
-    setFavoriteSessions(updated);
-    saveToLocalStorage("metfix_fav_sessions", updated);
+    commitSavedData({ favoriteSessions: updated });
 
     toast.success(isAdding ? "Added to My Schedule" : "Removed from schedule");
   };
@@ -324,8 +426,7 @@ export default function Home() {
     const updated = favoriteSponsors.includes(id)
       ? favoriteSponsors.filter(x => x !== id)
       : [...favoriteSponsors, id];
-    setFavoriteSponsors(updated);
-    saveToLocalStorage("metfix_fav_sponsors", updated);
+    commitSavedData({ favoriteSponsors: updated });
     toast.success(favoriteSponsors.includes(id) ? "Removed from favorites" : "Sponsor saved");
   };
 
@@ -333,8 +434,7 @@ export default function Home() {
     const updated = favoriteExhibitors.includes(id)
       ? favoriteExhibitors.filter(x => x !== id)
       : [...favoriteExhibitors, id];
-    setFavoriteExhibitors(updated);
-    saveToLocalStorage("metfix_fav_exhibitors", updated);
+    commitSavedData({ favoriteExhibitors: updated });
     toast.success(favoriteExhibitors.includes(id) ? "Removed from favorites" : "Exhibitor saved");
   };
 
@@ -350,6 +450,9 @@ export default function Home() {
       person.email ? `EMAIL:${person.email}` : "",
       person.phone ? `TEL:${person.phone}` : "",
       person.website ? `URL:${person.website}` : "",
+      person.instagram ? `URL;TYPE=Instagram:${person.instagram}` : "",
+      person.facebook ? `URL;TYPE=Facebook:${person.facebook}` : "",
+      person.linkedin ? `URL;TYPE=LinkedIn:${person.linkedin}` : "",
       "END:VCARD"
     ].filter(Boolean).join("\n");
 
@@ -541,7 +644,7 @@ export default function Home() {
     setIsCameraScanning(false);
   };
 
-  // Stop camera scanning if user switches tabs
+  // Stop camera scanning if user switches tab
   useEffect(() => {
     if (currentTab !== "scan") {
       stopCameraScanner();
@@ -551,7 +654,62 @@ export default function Home() {
   const authenticateUser = (member: Member) => {
     setLoggedInUser(member);
     saveToLocalStorage("metfix_user", member);
+    setIsEditingProfile(false);
     toast.success(`Welcome, ${member.name}!`);
+  };
+
+  const startEditingProfile = () => {
+    if (!loggedInUser) return;
+    setProfileForm({
+      email: loggedInUser.email ?? "",
+      phone: loggedInUser.phone ?? "",
+      website: loggedInUser.website ?? "",
+      company: loggedInUser.company ?? "",
+      role: loggedInUser.role ?? "",
+      instagram: loggedInUser.instagram ?? "",
+      facebook: loggedInUser.facebook ?? "",
+      linkedin: loggedInUser.linkedin ?? "",
+    });
+    setIsEditingProfile(true);
+  };
+
+  const handleSaveProfile = async () => {
+    if (!loggedInUser) return;
+
+    setIsSavingProfile(true);
+    try {
+      const saved = await updateProfile({
+        badge_id: loggedInUser.id,
+        email: profileForm.email,
+        phone: profileForm.phone,
+        website: profileForm.website,
+        company: profileForm.company,
+        role: profileForm.role,
+        instagram: profileForm.instagram,
+        facebook: profileForm.facebook,
+        linkedin: profileForm.linkedin,
+      });
+
+      const updatedUser = applyProfileOverride(loggedInUser, saved);
+      setLoggedInUser(updatedUser);
+      saveToLocalStorage("metfix_user", updatedUser);
+      setMembers((prev) =>
+        prev.map((member) =>
+          member.id === updatedUser.id ? applyProfileOverride(member, saved) : member
+        )
+      );
+      setSpeakers((prev) =>
+        prev.map((speaker) =>
+          speaker.id === updatedUser.id ? applyProfileOverride(speaker, saved) : speaker
+        )
+      );
+      setIsEditingProfile(false);
+      toast.success("Profile updated successfully.");
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Failed to update profile.");
+    } finally {
+      setIsSavingProfile(false);
+    }
   };
 
   const handleLoginScan = (code: string) => {
@@ -579,6 +737,7 @@ export default function Home() {
     setLoggedInUser(null);
     localStorage.removeItem("metfix_user");
     setProfileOpen(false);
+    setIsEditingProfile(false);
     toast.success("Logged out successfully");
   };
 
@@ -640,7 +799,10 @@ export default function Home() {
     const persistScan = (
       name: string,
       type: string,
-      contact?: Pick<Member, "role" | "company" | "email" | "phone" | "website">
+      contact?: Pick<
+        Member,
+        "role" | "company" | "email" | "phone" | "website" | "instagram" | "facebook" | "linkedin"
+      >
     ) => {
       const exists = savedScans.some(s => s.memberId === cleanCode);
       if (!exists) {
@@ -656,12 +818,14 @@ export default function Home() {
           company: contact?.company,
           email: contact?.email,
           phone: contact?.phone,
-          website: contact?.website
+          website: contact?.website,
+          instagram: contact?.instagram,
+          facebook: contact?.facebook,
+          linkedin: contact?.linkedin,
         };
 
         const updated = [record, ...savedScans];
-        setSavedScans(updated);
-        saveToLocalStorage("metfix_scans", updated);
+        commitSavedData({ scans: updated });
         toast.success(name === "Unknown Attendee" ? "Scanned unknown attendee ID" : `Scanned & Saved: ${name}`);
       } else {
         toast.info(name === "Unknown Attendee" ? "Badge already scanned." : `${name} is already in your scan history.`);
@@ -688,8 +852,7 @@ export default function Home() {
 
   const deleteScan = (id: string) => {
     const updated = savedScans.filter(s => s.id !== id);
-    setSavedScans(updated);
-    saveToLocalStorage("metfix_scans", updated);
+    commitSavedData({ scans: updated });
     toast.success("Scan removed from history");
     if (selectedScanDetail?.id === id) {
       setSelectedScanDetail(null);
@@ -698,8 +861,7 @@ export default function Home() {
 
   const updateScanNote = (id: string, newNote: string) => {
     const updated = savedScans.map(s => s.id === id ? { ...s, notes: newNote } : s);
-    setSavedScans(updated);
-    saveToLocalStorage("metfix_scans", updated);
+    commitSavedData({ scans: updated });
     toast.success("Note updated");
     if (selectedScanDetail?.id === id) {
       setSelectedScanDetail(prev => prev ? { ...prev, notes: newNote } : null);
@@ -708,8 +870,7 @@ export default function Home() {
 
   const toggleScanFavorite = (id: string) => {
     const updated = savedScans.map(s => s.id === id ? { ...s, favorite: !s.favorite } : s);
-    setSavedScans(updated);
-    saveToLocalStorage("metfix_scans", updated);
+    commitSavedData({ scans: updated });
     if (selectedScanDetail?.id === id) {
       setSelectedScanDetail(prev => prev ? { ...prev, favorite: !prev.favorite } : null);
     }
@@ -795,14 +956,14 @@ export default function Home() {
             ) : (
               <button
                 onClick={() => handleTabChange("login")}
-                className={`p-2 rounded-full border transition-all ${
+                className={`px-3 py-1.5 rounded-lg border transition-all text-[10px] font-bold uppercase tracking-widest ${
                   currentTab === "login"
                     ? "border-[#c4b396] bg-[#c4b396]/15 text-[#c4b396]"
                     : "border-[#c4b396]/20 bg-[#c4b396]/5 text-[#c4b396] hover:bg-[#c4b396]/10"
                 }`}
                 aria-label="Log in"
               >
-                <LogIn className="h-4 w-4" />
+                Login
               </button>
             )}
             <button
@@ -1628,6 +1789,21 @@ export default function Home() {
                             <Globe className="h-4 w-4 text-[#c4b396]/70" /> Website
                           </a>
                         )}
+                        {speaker.instagram && (
+                          <a href={speaker.instagram.startsWith("http") ? speaker.instagram : `https://${speaker.instagram}`} target="_blank" rel="noopener noreferrer" className="text-[10px] text-[#8E9CAE] hover:text-[#c4b396] flex flex-col items-center gap-1">
+                            <Instagram className="h-4 w-4 text-[#c4b396]/70" /> Instagram
+                          </a>
+                        )}
+                        {speaker.facebook && (
+                          <a href={speaker.facebook.startsWith("http") ? speaker.facebook : `https://${speaker.facebook}`} target="_blank" rel="noopener noreferrer" className="text-[10px] text-[#8E9CAE] hover:text-[#c4b396] flex flex-col items-center gap-1">
+                            <Facebook className="h-4 w-4 text-[#c4b396]/70" /> Facebook
+                          </a>
+                        )}
+                        {speaker.linkedin && (
+                          <a href={speaker.linkedin.startsWith("http") ? speaker.linkedin : `https://${speaker.linkedin}`} target="_blank" rel="noopener noreferrer" className="text-[10px] text-[#8E9CAE] hover:text-[#c4b396] flex flex-col items-center gap-1">
+                            <Linkedin className="h-4 w-4 text-[#c4b396]/70" /> LinkedIn
+                          </a>
+                        )}
                       </div>
 
                       {/* Bio */}
@@ -2431,6 +2607,7 @@ export default function Home() {
                     {scannedMember.email && <p className="flex items-start gap-1.5 break-all"><Mail className="h-3 w-3 shrink-0 text-[#c4b396] mt-0.5" /> {scannedMember.email}</p>}
                     {scannedMember.phone && <p className="flex items-start gap-1.5 break-all"><Phone className="h-3 w-3 shrink-0 text-[#c4b396] mt-0.5" /> {scannedMember.phone}</p>}
                     {scannedMember.website && <p className="flex items-start gap-1.5 break-all"><Globe className="h-3 w-3 shrink-0 text-[#c4b396] mt-0.5" /> {scannedMember.website}</p>}
+                    <MemberSocialLinks person={scannedMember} variant="inline" />
                   </div>
                 </div>
               ) : (
@@ -2557,7 +2734,8 @@ export default function Home() {
                     </a>
                   </p>
                 )}
-                {!selectedAttendee.email && !selectedAttendee.phone && !selectedAttendee.website && (
+                <MemberSocialLinks person={selectedAttendee} variant="inline" />
+                {!hasContactDetails(selectedAttendee) && (
                   <p className="text-[10px] text-[#8E9CAE]/70 italic">No contact details on file.</p>
                 )}
               </div>
@@ -2664,6 +2842,7 @@ export default function Home() {
                 {selectedScanDetail.email && <p className="flex items-center gap-1.5"><Mail className="h-3 w-3 text-[#c4b396]" /> {selectedScanDetail.email}</p>}
                 {selectedScanDetail.phone && <p className="flex items-center gap-1.5"><Phone className="h-3 w-3 text-[#c4b396]" /> {selectedScanDetail.phone}</p>}
                 {selectedScanDetail.website && <p className="flex items-center gap-1.5"><Globe className="h-3 w-3 text-[#c4b396]" /> {selectedScanDetail.website}</p>}
+                <MemberSocialLinks person={selectedScanDetail} variant="inline" />
               </div>
             </div>
 
@@ -2896,19 +3075,25 @@ export default function Home() {
       </Dialog>
 
       {/* PROFILE SIDEBAR */}
-      <Sheet open={profileOpen} onOpenChange={setProfileOpen}>
+      <Sheet
+        open={profileOpen}
+        onOpenChange={(open) => {
+          setProfileOpen(open);
+          if (!open) setIsEditingProfile(false);
+        }}
+      >
         <SheetContent
           side="right"
-          className="bg-[#121214] border-[#c4b396]/15 text-[#F8FAFC] w-full sm:max-w-sm overflow-y-auto [&>button]:text-[#8E9CAE] [&>button]:hover:text-white"
+          className="bg-[#121214] border-[#c4b396]/15 text-[#F8FAFC] w-full sm:max-w-sm overflow-y-auto [&>button]:text-[#8E9CAE] [&>button]:hover:text-white flex flex-col px-8 sm:px-10 pb-8"
         >
           {loggedInUser && (
             <>
-              <SheetHeader className="pt-2 pb-4 border-b border-[#c4b396]/10">
-                <div className="flex items-center gap-4">
+              <SheetHeader className="px-0 pt-2 pb-4 border-b border-[#c4b396]/10">
+                <div className="flex items-center gap-4 pr-10">
                   <div className="h-14 w-14 rounded-full bg-[#c4b396]/15 border border-[#c4b396]/30 flex items-center justify-center text-[#c4b396] font-bold text-xl shrink-0">
                     {loggedInUser.name.charAt(0)}
                   </div>
-                  <div className="space-y-1 text-left">
+                  <div className="space-y-1 text-left flex-1 min-w-0">
                     <SheetTitle className="text-white font-serif-luxury text-lg">{loggedInUser.name}</SheetTitle>
                     <SheetDescription className="text-[#8E9CAE] text-xs">
                       {loggedInUser.role || loggedInUser.company}
@@ -2917,68 +3102,228 @@ export default function Home() {
                 </div>
               </SheetHeader>
 
-              <div className="space-y-4 py-4">
-                <div className="flex items-center gap-2">
-                  <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-[#c4b396]/10 text-[#c4b396] border border-[#c4b396]/20 uppercase tracking-wider">
-                    {loggedInUser.type || "attendee"}
-                  </span>
-                </div>
+              {!isEditingProfile && isSupabaseConfigured() && (
+                <Button
+                  type="button"
+                  onClick={startEditingProfile}
+                  className="w-full bg-[#c4b396] hover:bg-[#c4b396]/80 text-[#070707] h-11 rounded-lg text-xs font-bold uppercase tracking-wider gap-2"
+                >
+                  <Pencil className="h-4 w-4" />
+                  Edit Profile
+                </Button>
+              )}
 
-                {loggedInUser.company && loggedInUser.company !== loggedInUser.role && (
-                  <div className="rounded-xl border border-[#c4b396]/10 bg-[#070707] p-3 space-y-1">
-                    <p className="text-[9px] font-bold text-[#8E9CAE] uppercase tracking-wider">Company</p>
-                    <p className="text-sm text-white">{loggedInUser.company}</p>
+              {isEditingProfile ? (
+                <div className="space-y-4 py-2 flex-1">
+                  <p className="text-[10px] text-[#8E9CAE] leading-relaxed">
+                    Update your contact info. Changes are visible when others scan your badge.
+                  </p>
+
+                  <div className="space-y-3">
+                    <div className="space-y-1.5">
+                      <Label htmlFor="profile-role" className="text-[9px] font-bold text-[#8E9CAE] uppercase tracking-wider">
+                        Role / Title
+                      </Label>
+                      <Input
+                        id="profile-role"
+                        value={profileForm.role}
+                        onChange={(e) => setProfileForm((prev) => ({ ...prev, role: e.target.value }))}
+                        className="bg-[#070707] border-[#c4b396]/20 text-white text-xs h-10"
+                        placeholder="Your role or title"
+                      />
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <Label htmlFor="profile-company" className="text-[9px] font-bold text-[#8E9CAE] uppercase tracking-wider">
+                        Company
+                      </Label>
+                      <Input
+                        id="profile-company"
+                        value={profileForm.company}
+                        onChange={(e) => setProfileForm((prev) => ({ ...prev, company: e.target.value }))}
+                        className="bg-[#070707] border-[#c4b396]/20 text-white text-xs h-10"
+                        placeholder="Company or organization"
+                      />
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <Label htmlFor="profile-email" className="text-[9px] font-bold text-[#8E9CAE] uppercase tracking-wider">
+                        Email
+                      </Label>
+                      <Input
+                        id="profile-email"
+                        type="email"
+                        value={profileForm.email}
+                        onChange={(e) => setProfileForm((prev) => ({ ...prev, email: e.target.value }))}
+                        className="bg-[#070707] border-[#c4b396]/20 text-white text-xs h-10"
+                        placeholder="you@example.com"
+                      />
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <Label htmlFor="profile-phone" className="text-[9px] font-bold text-[#8E9CAE] uppercase tracking-wider">
+                        Phone
+                      </Label>
+                      <Input
+                        id="profile-phone"
+                        type="tel"
+                        value={profileForm.phone}
+                        onChange={(e) => setProfileForm((prev) => ({ ...prev, phone: e.target.value }))}
+                        className="bg-[#070707] border-[#c4b396]/20 text-white text-xs h-10"
+                        placeholder="+1 (555) 555-0100"
+                      />
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <Label htmlFor="profile-website" className="text-[9px] font-bold text-[#8E9CAE] uppercase tracking-wider">
+                        Website
+                      </Label>
+                      <Input
+                        id="profile-website"
+                        value={profileForm.website}
+                        onChange={(e) => setProfileForm((prev) => ({ ...prev, website: e.target.value }))}
+                        className="bg-[#070707] border-[#c4b396]/20 text-white text-xs h-10"
+                        placeholder="https://yoursite.com"
+                      />
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <Label htmlFor="profile-instagram" className="text-[9px] font-bold text-[#8E9CAE] uppercase tracking-wider">
+                        Instagram
+                      </Label>
+                      <Input
+                        id="profile-instagram"
+                        value={profileForm.instagram}
+                        onChange={(e) => setProfileForm((prev) => ({ ...prev, instagram: e.target.value }))}
+                        className="bg-[#070707] border-[#c4b396]/20 text-white text-xs h-10"
+                        placeholder="https://instagram.com/you"
+                      />
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <Label htmlFor="profile-facebook" className="text-[9px] font-bold text-[#8E9CAE] uppercase tracking-wider">
+                        Facebook
+                      </Label>
+                      <Input
+                        id="profile-facebook"
+                        value={profileForm.facebook}
+                        onChange={(e) => setProfileForm((prev) => ({ ...prev, facebook: e.target.value }))}
+                        className="bg-[#070707] border-[#c4b396]/20 text-white text-xs h-10"
+                        placeholder="https://facebook.com/you"
+                      />
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <Label htmlFor="profile-linkedin" className="text-[9px] font-bold text-[#8E9CAE] uppercase tracking-wider">
+                        LinkedIn
+                      </Label>
+                      <Input
+                        id="profile-linkedin"
+                        value={profileForm.linkedin}
+                        onChange={(e) => setProfileForm((prev) => ({ ...prev, linkedin: e.target.value }))}
+                        className="bg-[#070707] border-[#c4b396]/20 text-white text-xs h-10"
+                        placeholder="https://linkedin.com/in/you"
+                      />
+                    </div>
                   </div>
-                )}
 
-                {loggedInUser.email && (
-                  <a
-                    href={`mailto:${loggedInUser.email}`}
-                    className="flex items-center gap-3 rounded-xl border border-[#c4b396]/10 bg-[#070707] p-3 hover:border-[#c4b396]/30 transition-all"
-                  >
-                    <Mail className="h-4 w-4 text-[#c4b396] shrink-0" />
-                    <div className="min-w-0">
-                      <p className="text-[9px] font-bold text-[#8E9CAE] uppercase tracking-wider">Email</p>
-                      <p className="text-xs text-white truncate">{loggedInUser.email}</p>
-                    </div>
-                  </a>
-                )}
-
-                {loggedInUser.phone && (
-                  <a
-                    href={`tel:${loggedInUser.phone}`}
-                    className="flex items-center gap-3 rounded-xl border border-[#c4b396]/10 bg-[#070707] p-3 hover:border-[#c4b396]/30 transition-all"
-                  >
-                    <Phone className="h-4 w-4 text-[#c4b396] shrink-0" />
-                    <div className="min-w-0">
-                      <p className="text-[9px] font-bold text-[#8E9CAE] uppercase tracking-wider">Phone</p>
-                      <p className="text-xs text-white">{loggedInUser.phone}</p>
-                    </div>
-                  </a>
-                )}
-
-                {loggedInUser.website && (
-                  <a
-                    href={loggedInUser.website}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center gap-3 rounded-xl border border-[#c4b396]/10 bg-[#070707] p-3 hover:border-[#c4b396]/30 transition-all"
-                  >
-                    <Globe className="h-4 w-4 text-[#c4b396] shrink-0" />
-                    <div className="min-w-0">
-                      <p className="text-[9px] font-bold text-[#8E9CAE] uppercase tracking-wider">Website</p>
-                      <p className="text-xs text-[#c4b396] truncate">{loggedInUser.website.replace(/^https?:\/\//, "")}</p>
-                    </div>
-                  </a>
-                )}
-
-                <div className="rounded-xl border border-[#c4b396]/10 bg-[#070707] p-3 space-y-1">
-                  <p className="text-[9px] font-bold text-[#8E9CAE] uppercase tracking-wider">Badge ID</p>
-                  <p className="text-xs text-white font-mono break-all">{loggedInUser.id}</p>
+                  <div className="flex gap-2 pt-2">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => setIsEditingProfile(false)}
+                      disabled={isSavingProfile}
+                      className="flex-1 border-[#c4b396]/30 text-white hover:bg-white/5 h-10 rounded-lg text-xs font-bold uppercase tracking-wider"
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      type="button"
+                      onClick={handleSaveProfile}
+                      disabled={isSavingProfile}
+                      className="flex-1 bg-[#c4b396] hover:bg-[#c4b396]/80 text-[#070707] h-10 rounded-lg text-xs font-bold uppercase tracking-wider"
+                    >
+                      {isSavingProfile ? (
+                        <>
+                          <Loader2 className="h-4 w-4 animate-spin mr-1.5" />
+                          Saving
+                        </>
+                      ) : (
+                        "Save Profile"
+                      )}
+                    </Button>
+                  </div>
                 </div>
-              </div>
+              ) : (
+                <div className="space-y-4 py-2 flex-1">
+                  <div className="flex items-center gap-2">
+                    <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-[#c4b396]/10 text-[#c4b396] border border-[#c4b396]/20 uppercase tracking-wider">
+                      {loggedInUser.type || "attendee"}
+                    </span>
+                  </div>
 
-              <div className="mt-auto pt-4 border-t border-[#c4b396]/10">
+                  {(loggedInUser.company || loggedInUser.role) && (
+                    <div className="rounded-xl border border-[#c4b396]/10 bg-[#070707] p-3 space-y-1">
+                      <p className="text-[9px] font-bold text-[#8E9CAE] uppercase tracking-wider">Company</p>
+                      <p className="text-sm text-white">{loggedInUser.company || loggedInUser.role}</p>
+                    </div>
+                  )}
+
+                  {loggedInUser.email ? (
+                    <a
+                      href={`mailto:${loggedInUser.email}`}
+                      className="flex items-center gap-3 rounded-xl border border-[#c4b396]/10 bg-[#070707] p-3 hover:border-[#c4b396]/30 transition-all"
+                    >
+                      <Mail className="h-4 w-4 text-[#c4b396] shrink-0" />
+                      <div className="min-w-0">
+                        <p className="text-[9px] font-bold text-[#8E9CAE] uppercase tracking-wider">Email</p>
+                        <p className="text-xs text-white truncate">{loggedInUser.email}</p>
+                      </div>
+                    </a>
+                  ) : isSupabaseConfigured() ? (
+                    <div className="rounded-xl border border-dashed border-[#c4b396]/20 bg-[#070707] p-3">
+                      <p className="text-[10px] text-[#8E9CAE]">No email yet. Tap Edit Profile to add your contact info.</p>
+                    </div>
+                  ) : null}
+
+                  {loggedInUser.phone && (
+                    <a
+                      href={`tel:${loggedInUser.phone}`}
+                      className="flex items-center gap-3 rounded-xl border border-[#c4b396]/10 bg-[#070707] p-3 hover:border-[#c4b396]/30 transition-all"
+                    >
+                      <Phone className="h-4 w-4 text-[#c4b396] shrink-0" />
+                      <div className="min-w-0">
+                        <p className="text-[9px] font-bold text-[#8E9CAE] uppercase tracking-wider">Phone</p>
+                        <p className="text-xs text-white">{loggedInUser.phone}</p>
+                      </div>
+                    </a>
+                  )}
+
+                  {loggedInUser.website && (
+                    <a
+                      href={loggedInUser.website}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-3 rounded-xl border border-[#c4b396]/10 bg-[#070707] p-3 hover:border-[#c4b396]/30 transition-all"
+                    >
+                      <Globe className="h-4 w-4 text-[#c4b396] shrink-0" />
+                      <div className="min-w-0">
+                        <p className="text-[9px] font-bold text-[#8E9CAE] uppercase tracking-wider">Website</p>
+                        <p className="text-xs text-[#c4b396] truncate">{loggedInUser.website.replace(/^https?:\/\//, "")}</p>
+                      </div>
+                    </a>
+                  )}
+
+                  <MemberSocialLinks person={loggedInUser} />
+
+                  <div className="rounded-xl border border-[#c4b396]/10 bg-[#070707] p-3 space-y-1">
+                    <p className="text-[9px] font-bold text-[#8E9CAE] uppercase tracking-wider">Badge ID</p>
+                    <p className="text-xs text-white font-mono break-all">{loggedInUser.id}</p>
+                  </div>
+                </div>
+              )}
+
+              <div className="mt-auto pt-4 border-t border-[#c4b396]/10 px-0">
                 <Button
                   onClick={logout}
                   variant="outline"

@@ -36,10 +36,11 @@ jobs:
 
       - name: Set base path
         run: |
-          if [[ "${{ github.event.repository.name }}" == *.github.io ]]; then
-            echo "BASE_PATH=/" >> "$GITHUB_ENV"
+          if [ -n "${{ vars.BASE_PATH }}" ]; then
+            echo "BASE_PATH=${{ vars.BASE_PATH }}" >> "$GITHUB_ENV"
           else
-            echo "BASE_PATH=/${{ github.event.repository.name }}/" >> "$GITHUB_ENV"
+            # Custom domain (e.g. unbreakablemfx.app) serves from root, not /repo-name/
+            echo "BASE_PATH=/" >> "$GITHUB_ENV"
           fi
 
       - name: Build site

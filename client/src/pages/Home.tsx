@@ -2611,7 +2611,6 @@ export default function Home() {
               <h3 className="text-lg font-bold text-white font-serif-luxury pt-1 break-words">
                 {scannedMember ? scannedMember.name : "Unknown Attendee"}
               </h3>
-              <p className="text-[10px] text-[#8E9CAE] break-all">ID: {scannedId}</p>
             </div>
 
             {/* Profile Info */}

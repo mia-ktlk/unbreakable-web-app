@@ -60,7 +60,7 @@ export default function Home() {
   const params = useParams<{ tab?: string; id?: string }>();
   const [location, setLocation] = useLocation();
   
-  // Parse query params to find the 'from' tab
+  // Parse query params to find the 'from' tabbb
   const queryParams = new URLSearchParams(window.location.search);
   const fromTab = queryParams.get("from") || "speakers";
   

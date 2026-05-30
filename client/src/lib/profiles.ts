@@ -59,7 +59,9 @@ export function applyProfileOverride<T extends Member>(
   const merged = { ...member };
   for (const field of EDITABLE_FIELDS) {
     const value = override[field];
-    if (value !== null && value !== undefined) {
+    if (value === null) {
+      delete merged[field];
+    } else if (value !== undefined) {
       merged[field] = value;
     }
   }

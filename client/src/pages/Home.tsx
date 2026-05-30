@@ -2945,7 +2945,7 @@ export default function Home() {
       >
         <SheetContent
           side="right"
-          className="bg-[#121214] border-[#c4b396]/15 text-[#F8FAFC] w-full sm:max-w-sm overflow-y-auto [&>button]:text-[#8E9CAE] [&>button]:hover:text-white flex flex-col px-8 sm:px-10 pb-safe"
+          className="bg-[#121214] border-[#c4b396]/15 text-[#F8FAFC] w-full sm:max-w-sm overflow-y-auto flex flex-col px-8 sm:px-10 pb-safe"
         >
           {loggedInUser && (
             <>
@@ -2965,7 +2965,7 @@ export default function Home() {
                 <Button
                   type="button"
                   onClick={startEditingProfile}
-                  className="w-full bg-[#c4b396] hover:bg-[#c4b396]/80 text-[#070707] h-11 rounded-lg text-xs font-bold uppercase tracking-wider gap-2"
+                  className="w-full bg-[#c4b396] hover:bg-[#c4b396]/80 text-[#070707] [&_svg]:text-[#070707] h-11 rounded-lg text-xs font-bold uppercase tracking-wider gap-2"
                 >
                   <Pencil className="h-4 w-4" />
                   Edit Profile

@@ -2,86 +2,86 @@
   {
     "id": "01KSG9HP9X4QDSR7REY",
     "name": "Emily Kaplan",
-    "role": "CEO and CoFounder of MetFix",
-    "company": "CEO and CoFounder of MetFix",
+    "role": "CEO & CoFounder",
+    "company": "The Broken Science Initiative & MetFix",
     "type": "speaker",
     "website": "https://brokenscience.org"
   },
   {
     "id": "01KSG9P49FTMBWXY106",
     "name": "Greg Glassman",
-    "role": "CoFounder of MetFix",
-    "company": "CoFounder of MetFix",
+    "role": "CoFounder",
+    "company": "The Broken Science Initiative & MetFix",
     "type": "speaker",
     "website": "https://brokenscience.org"
   },
   {
     "id": "01KSG97CEJ0TDYMQPNM",
     "name": "Dave Feldman",
-    "role": "Software Engineer and Founder, Cholesterol Code",
-    "company": "Software Engineer and Founder, Cholesterol Code",
+    "role": "Software Engineer & Founder",
+    "company": "Cholesterol Code",
     "type": "speaker"
   },
   {
     "id": "01KSGAS4MVZBP46JM5X",
     "name": "Mark Sisson",
     "role": "Author and Health Researcher",
-    "company": "Author and Health Researcher",
+    "company": "Primal Kitchen",
     "type": "speaker"
   },
   {
     "id": "01KSG9B7SK90424AJ9V",
     "name": "Dr. Jaime Seeman",
-    "role": "Board-Certified Obstetrician and Gynecologist",
-    "company": "Board-Certified Obstetrician and Gynecologist",
+    "role": "Board-Certified Obstetrician & Gynecologist",
+    "company": "",
     "type": "speaker"
   },
   {
     "id": "01KSGA9H6ETF574X35G",
     "name": "Thomas Seyfried, PHD",
-    "role": "Professor of Biology, Boston College",
-    "company": "Professor of Biology, Boston College",
+    "role": "Professor of Biology",
+    "company": "Boston College",
     "type": "speaker"
   },
   {
     "id": "01KSG99GEQXJVSJCTAW",
     "name": "Drew Pinsky, M.D.",
-    "role": "Physician and Broadcaster",
-    "company": "Physician and Broadcaster",
+    "role": "Physician & Broadcaster",
+    "company": "",
     "type": "speaker"
   },
   {
     "id": "01KSGA43KDKNK6TQRHG",
     "name": "Kenny Santucci",
-    "role": "Fitness Entrepreneur, Coach, and Community Leader",
-    "company": "Fitness Entrepreneur, Coach, and Community Leader",
+   "role": "Fitness Entrepreneur, Coach, & Community Leader",
+    "company": "",
     "type": "speaker"
   },
   {
     "id": "01KSG9FFK42B54HGBYM",
     "name": "Eddie Hertzman",
-    "role": "Founder, Athletech News",
-    "company": "Founder, Athletech News",
+    "role": "Founder",
+    "company": "Athletech News",
     "type": "speaker"
   },
   {
     "id": "01KSG8KMNJN8R6XDK8A",
     "name": "Arianna Masotti, PSYD",
-    "role": "Clinical Psychologist and Founder, The Bloome Method",
-    "company": "Clinical Psychologist and Founder, The Bloome Method",
+    "role": "Clinical Psychologist & Founder",
+    "company": "The Bloome Method",
     "type": "speaker"
   },
   {
     "id": "01KSG9DD3RASEDRJ45R",
     "name": "Dr. Jila Senemar",
-    "role": "Board Certified Obstetrician-Gynecologist",
-    "company": "Board Certified Obstetrician-Gynecologist",
+   "role": "Board Certified Obstetrician-Gynecologist",
+    "company": "JilaMD",
     "type": "speaker"
   },
   {
     "id": "01KSG7F567CKM5H7PFQ",
     "name": "Lori Hill",
-    "role": "MetFix Method",
+    "role": "Affiliate Owner",
     "company": "MetFix Method",
     "type": "panelist",
     "website": "https://MetFixMethod.com"
@@ -89,7 +89,7 @@
   {
     "id": "01KKJ8M47FWMNZY6W5F",
     "name": "Luke Palmisano",
-    "role": "Dr Luke P Metabolic Health MetFix",
+    "role": "Affiliate Owner & ER Doctor",
     "company": "Dr Luke P Metabolic Health MetFix",
     "type": "panelist",
     "website": "https://www.drlukep.com/"
@@ -97,29 +97,29 @@
   {
     "id": "01KCSKAEEPMGBHAE8BB",
     "name": "Jen Garrett",
-    "role": "",
-    "company": "",
+    "role": "Chair & Program Director",
+    "company": "Mount St. Joseph University",
     "type": "panelist"
   },
   {
     "id": "01KDTBVP6AVGBCAKZAF",
     "name": "Patrick Larreategui",
-    "role": "",
+    "role": "Surgeon",
     "company": "",
     "type": "panelist"
   },
   {
     "id": "01KRHY7N0J2X0PB9JEE",
     "name": "Peter Shaw",
-    "role": "Head of Affiliates / Petra Health MetFix",
-    "company": "Head of Affiliates / Petra Health MetFix",
+    "role": "  Affiliate Owner",
+    "company": "Petra Health MetFix",
     "type": "panelist",
     "website": "https://Www.petrahealth.ca"
   },
   {
     "id": "01KSG8Y4E66A72EMQV6",
     "name": "Chris Russell",
-    "role": "MetFix Jax",
+    "role": "Affiliate Owner & Academy Staff",
     "company": "MetFix Jax",
     "type": "panelist",
     "website": "https://www.crossfitjax.com"
@@ -128,22 +128,22 @@
     "id": "01KSG9M7MBPKA7TK6E1",
     "name": "Bob Kaplan",
     "role": "Head of Research",
-    "company": "Head of Research",
+    "company": "BSI",
     "type": "panelist",
     "website": "https://brokenscience.org"
   },
   {
     "id": "01KSG930EJVS4EPAJZ7",
     "name": "Dale King",
-    "role": "Head of Affiliates / PSKC MetFix",
-    "company": "Head of Affiliates / PSKC MetFix",
+    "role": "Head of Affiliates & Affiliate Owner",
+    "company": "PSKC MetFix",
     "type": "mc",
     "website": "https://www.pskcstrong.com/"
   },
   {
     "id": "01KSJHZN0QSBKTFH42Z",
     "name": "Karl Steadman",
-    "role": "Ellipsis MetFix",
+    "role": "Affiliate Owner & Academy Staff",
     "company": "Ellipsis MetFix",
     "type": "panelist",
     "website": "https://www.ellipsistrainingandadventures.com/"
@@ -151,7 +151,7 @@
   {
     "id": "01KSGAW830F5EQPXRAR",
     "name": "Matt Sherburne",
-    "role": "Misfit Gym Windham",
+    "role": "Affiliate Owner & Academy Staff",
     "company": "Misfit Gym Windham",
     "type": "panelist",
     "website": "https://www.misfitgymwindham.com"
@@ -159,7 +159,7 @@
   {
     "id": "01KRHK702Z7C81112WB",
     "name": "Theresa Sbarra",
-    "role": "MetFix Victor",
+    "role": "Affilate Owner & Unbreakable Operations",
     "company": "MetFix Victor",
     "type": "panelist",
     "website": "http://www.crossfit585victor.com"
@@ -167,7 +167,7 @@
   {
     "id": "01KRE9XSA83V0PPWCVK",
     "name": "John Nittolo",
-    "role": "MetFix OCS",
+    "role": "School Superintendent",
     "company": "MetFix OCS",
     "type": "panelist",
     "website": "http://www.oxfordcentral.org"
@@ -175,7 +175,7 @@
   {
     "id": "01KR4R5WCJD11MF5P9W",
     "name": "Abrie Sellers",
-    "role": "Rose City MetFix",
+    "role": "Affiliate Owner",
     "company": "Rose City MetFix",
     "type": "panelist",
     "website": "https://rosecitybarbellclub.com"
@@ -183,15 +183,15 @@
   {
     "id": "01KRMP072HESJRS6Q5M",
     "name": "Erin Richter",
-    "role": "Head of Affiliate Outreach / MetFix Bowling Green",
-    "company": "Head of Affiliate Outreach / MetFix Bowling Green",
+    "role": "Head of Affiliate Outrach & Affiliate Owner",
+    "company": "MetFix Bowling Green",
     "type": "panelist",
     "website": "http://www.crossfitoldschool.com"
   },
   {
     "id": "01KR4Q53CFMHB50CD2R",
     "name": "Manny Alayon",
-    "role": "Westchester MetFix",
+    "role": "Affiliate Owner",
     "company": "Westchester MetFix",
     "type": "attendee"
   },
@@ -483,13 +483,6 @@
     "type": "attendee"
   },
   {
-    "id": "01KSG99GEQXJVSJCTAW",
-    "name": "Dr. Drew Pinsky",
-    "role": "",
-    "company": "",
-    "type": "attendee"
-  },
-  {
     "id": "01KSGC5A6N5PYDA76BE",
     "name": "Susan Pinsky",
     "role": "",
@@ -550,13 +543,6 @@
     "name": "Dusty Russell",
     "role": "MetFix Blueprint",
     "company": "MetFix Blueprint",
-    "type": "attendee"
-  },
-  {
-    "id": "01KSGA9H6ETF574X35G",
-    "name": "Prof. Thomas Seyfried",
-    "role": "",
-    "company": "",
     "type": "attendee"
   },
   {

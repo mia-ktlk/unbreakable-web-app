@@ -48,6 +48,8 @@ export interface Sponsor {
     facebook?: string;
     linkedin?: string;
   };
+  /** Show an Inquire button that opens a Formspree inquiry form */
+  inquiryEnabled?: boolean;
 }
 
 export interface Course {

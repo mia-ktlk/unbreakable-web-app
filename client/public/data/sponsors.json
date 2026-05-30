@@ -50,5 +50,15 @@
       "facebook": "https://www.facebook.com/profile.php?id=61581776219778&mibextid=wwXIfr",
       "linkedin": ""
     }
+  },
+  {
+    "id": "sp-dr-luke",
+    "name": "Dr Luke P Metabolic Health",
+    "logo": "/images/sponsors/dr-luke.webp",
+    "website": "https://www.drlukep.com/",
+    "description": "CrossFit-trained emergency physician helping repair and rebuild metabolic health through nutrition, comprehensive biomarker panels, and fitness coaching — on your schedule.",
+    "tier": "Silver",
+    "inquiryEnabled": true,
+    "socials": {}
   }
 ]

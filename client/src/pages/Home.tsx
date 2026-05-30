@@ -515,7 +515,7 @@ export default function Home() {
     setIsCameraScanning(false);
   };
 
-  // Stop camera scanning if user switches tabs
+  // Stop camera scanning if user switches tab
   useEffect(() => {
     if (currentTab !== "scan") {
       stopCameraScanner();

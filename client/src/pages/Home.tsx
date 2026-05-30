@@ -979,7 +979,7 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-[#070707] text-[#F8FAFC] pb-32 flex flex-col font-sans">
       {/* HEADER */}
-      <header className="sticky top-0 z-40 w-full border-b border-[#c4b396]/15 bg-[#070707]/90 backdrop-blur-md px-4 py-4">
+      <header className="sticky top-0 z-40 w-full border-b border-[#c4b396]/15 bg-[#070707]/90 backdrop-blur-md px-4 py-4 pt-safe">
         <div className="max-w-md mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="h-10 w-10 rounded-full border border-[#c4b396]/30 flex items-center justify-center bg-[#121214] overflow-hidden p-1 bg-gradient-to-b from-[#1c1c1f] to-[#0d0d0e]">

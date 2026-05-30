@@ -1,0 +1,11 @@
+# Publishable keys (sb_publishable_*) are not JWTs and must not go through
+# platform JWT verification. Badge validation happens inside each function.
+
+[functions.update-profile]
+verify_jwt = false
+
+[functions.upload-profile-photo]
+verify_jwt = false
+
+[functions.user-saved-data]
+verify_jwt = false

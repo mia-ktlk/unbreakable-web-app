@@ -1,5 +1,10 @@
 import { ScanRecord } from "../types";
 import { isSupabaseConfigured } from "./supabase";
+import {
+  getSupabaseFunctionErrorMessage,
+  getSupabaseFunctionHeaders,
+  getSupabaseFunctionUrl,
+} from "./supabaseFunctions";
 
 export interface UserSavedData {
   favoriteSpeakers: string[];
@@ -85,22 +90,16 @@ async function callUserSavedDataApi(
   badgeId: string,
   body: Record<string, unknown>
 ): Promise<Record<string, unknown>> {
-  const response = await fetch(
-    `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/user-saved-data`,
-    {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ badge_id: badgeId, ...body }),
-    }
-  );
+  const response = await fetch(getSupabaseFunctionUrl("user-saved-data"), {
+    method: "POST",
+    headers: getSupabaseFunctionHeaders({ "Content-Type": "application/json" }),
+    body: JSON.stringify({ badge_id: badgeId, ...body }),
+  });
 
   const result = await response.json().catch(() => ({}));
 
   if (!response.ok) {
-    throw new Error(result.error || "Failed to sync saved data.");
+    throw new Error(getSupabaseFunctionErrorMessage(result, "Failed to sync saved data."));
   }
 
   return result.data as Record<string, unknown>;

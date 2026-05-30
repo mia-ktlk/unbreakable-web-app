@@ -1,5 +1,10 @@
 import { Member } from "../types";
 import { getSupabaseClient, isSupabaseConfigured } from "./supabase";
+import {
+  getSupabaseFunctionErrorMessage,
+  getSupabaseFunctionHeaders,
+  getSupabaseFunctionUrl,
+} from "./supabaseFunctions";
 
 export interface ProfileOverride {
   badge_id: string;
@@ -97,21 +102,18 @@ async function callProfileFunction(
   path: string,
   init: RequestInit
 ): Promise<Record<string, unknown>> {
-  const response = await fetch(
-    `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/${path}`,
-    {
-      ...init,
-      headers: {
-        Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
-        ...(init.headers ?? {}),
-      },
-    }
-  );
+  const response = await fetch(getSupabaseFunctionUrl(path), {
+    ...init,
+    headers: {
+      ...getSupabaseFunctionHeaders(),
+      ...(init.headers as Record<string, string> | undefined),
+    },
+  });
 
   const result = await response.json().catch(() => ({}));
 
   if (!response.ok) {
-    throw new Error(result.error || "Profile request failed.");
+    throw new Error(getSupabaseFunctionErrorMessage(result, "Profile request failed."));
   }
 
   return result.data as Record<string, unknown>;

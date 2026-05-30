@@ -2934,12 +2934,12 @@ export default function Home() {
       >
         <SheetContent
           side="right"
-          className="bg-[#121214] border-[#c4b396]/15 text-[#F8FAFC] w-full sm:max-w-sm overflow-y-auto [&>button]:text-[#8E9CAE] [&>button]:hover:text-white flex flex-col"
+          className="bg-[#121214] border-[#c4b396]/15 text-[#F8FAFC] w-full sm:max-w-sm overflow-y-auto [&>button]:text-[#8E9CAE] [&>button]:hover:text-white flex flex-col px-8 sm:px-10 pb-8"
         >
           {loggedInUser && (
             <>
-              <SheetHeader className="pt-2 pb-4 border-b border-[#c4b396]/10">
-                <div className="flex items-center gap-4">
+              <SheetHeader className="px-0 pt-2 pb-4 border-b border-[#c4b396]/10">
+                <div className="flex items-center gap-4 pr-10">
                   <div className="h-14 w-14 rounded-full bg-[#c4b396]/15 border border-[#c4b396]/30 flex items-center justify-center text-[#c4b396] font-bold text-xl shrink-0">
                     {loggedInUser.name.charAt(0)}
                   </div>
@@ -2949,22 +2949,22 @@ export default function Home() {
                       {loggedInUser.role || loggedInUser.company}
                     </SheetDescription>
                   </div>
-                  {isSupabaseConfigured() && !isEditingProfile && (
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={startEditingProfile}
-                      className="border-[#c4b396]/30 text-[#c4b396] hover:bg-[#c4b396]/10 h-8 px-2 shrink-0"
-                    >
-                      <Pencil className="h-3.5 w-3.5" />
-                    </Button>
-                  )}
                 </div>
               </SheetHeader>
 
+              {!isEditingProfile && isSupabaseConfigured() && (
+                <Button
+                  type="button"
+                  onClick={startEditingProfile}
+                  className="w-full bg-[#c4b396] hover:bg-[#c4b396]/80 text-[#070707] h-11 rounded-lg text-xs font-bold uppercase tracking-wider gap-2"
+                >
+                  <Pencil className="h-4 w-4" />
+                  Edit Profile
+                </Button>
+              )}
+
               {isEditingProfile ? (
-                <div className="space-y-4 py-4 flex-1">
+                <div className="space-y-4 py-2 flex-1">
                   <p className="text-[10px] text-[#8E9CAE] leading-relaxed">
                     Update your contact info. Changes are visible when others scan your badge.
                   </p>
@@ -3105,7 +3105,7 @@ export default function Home() {
                   </div>
                 </div>
               ) : (
-                <div className="space-y-4 py-4 flex-1">
+                <div className="space-y-4 py-2 flex-1">
                   <div className="flex items-center gap-2">
                     <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-[#c4b396]/10 text-[#c4b396] border border-[#c4b396]/20 uppercase tracking-wider">
                       {loggedInUser.type || "attendee"}
@@ -3132,7 +3132,7 @@ export default function Home() {
                     </a>
                   ) : isSupabaseConfigured() ? (
                     <div className="rounded-xl border border-dashed border-[#c4b396]/20 bg-[#070707] p-3">
-                      <p className="text-[10px] text-[#8E9CAE]">No email yet. Tap edit to add your contact info.</p>
+                      <p className="text-[10px] text-[#8E9CAE]">No email yet. Tap Edit Profile to add your contact info.</p>
                     </div>
                   ) : null}
 
@@ -3173,7 +3173,7 @@ export default function Home() {
                 </div>
               )}
 
-              <div className="mt-auto pt-4 border-t border-[#c4b396]/10">
+              <div className="mt-auto pt-4 border-t border-[#c4b396]/10 px-0">
                 <Button
                   onClick={logout}
                   variant="outline"

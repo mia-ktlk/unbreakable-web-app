@@ -86,6 +86,7 @@ import { isSupabaseConfigured } from "@/lib/supabase";
 import {
   applyProfileOverride,
   fetchProfileOverrides,
+  MAX_PROFILE_PHOTO_BYTES,
   mergeMembersWithOverrides,
   updateProfile,
   uploadProfilePhoto,
@@ -695,8 +696,8 @@ export default function Home() {
       return;
     }
 
-    if (file.size > 2 * 1024 * 1024) {
-      toast.error("Photo must be 2MB or smaller.");
+    if (file.size > MAX_PROFILE_PHOTO_BYTES) {
+      toast.error("Photo must be 10MB or smaller.");
       return;
     }
 
@@ -3128,6 +3129,24 @@ export default function Home() {
 
               <div className="flex-1 overflow-y-auto overscroll-contain min-h-0 px-8 sm:px-10 pb-safe">
                 <div className="flex flex-col gap-4 py-4">
+                  <div
+                    role="note"
+                    className="rounded-xl border-2 border-[#c4b396]/50 bg-[#c4b396]/10 p-4 space-y-2"
+                  >
+                    <p className="text-[11px] font-bold text-[#c4b396] uppercase tracking-wider flex items-center gap-2">
+                      <Users className="h-4 w-4 shrink-0" />
+                      Your profile is public
+                    </p>
+                    <p className="text-xs text-white leading-relaxed">
+                      Everything you add here — photo, bio, email, phone, social links, and more — is{" "}
+                      <span className="font-bold text-[#c4b396]">visible to everyone</span> using the
+                      conference app when they scan your badge or browse attendees.
+                    </p>
+                    <p className="text-[11px] text-[#8E9CAE] leading-relaxed">
+                      Only add details you&apos;re comfortable sharing with all summit attendees.
+                    </p>
+                  </div>
+
                   {!isEditingProfile && isSupabaseConfigured() && (
                     <Button
                       type="button"
@@ -3146,7 +3165,7 @@ export default function Home() {
                         <div className="min-w-0">
                           <p className="text-white font-serif-luxury text-lg leading-tight">{loggedInUser.name}</p>
                           <p className="text-[10px] text-[#8E9CAE] leading-relaxed mt-1">
-                            Update your contact info. Changes are visible when others scan your badge.
+                            Edit the fields below, then save. Leave anything blank you don&apos;t want to share.
                           </p>
                         </div>
                       </div>

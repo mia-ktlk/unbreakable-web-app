@@ -6,6 +6,9 @@ import {
   getSupabaseFunctionUrl,
 } from "./supabaseFunctions";
 
+/** 10MB — covers typical full-resolution iPhone camera roll photos. */
+export const MAX_PROFILE_PHOTO_BYTES = 10 * 1024 * 1024;
+
 export interface ProfileOverride {
   badge_id: string;
   email: string | null;
@@ -56,7 +59,9 @@ export function applyProfileOverride<T extends Member>(
   const merged = { ...member };
   for (const field of EDITABLE_FIELDS) {
     const value = override[field];
-    if (value !== null && value !== undefined) {
+    if (value === null) {
+      delete merged[field];
+    } else if (value !== undefined) {
       merged[field] = value;
     }
   }

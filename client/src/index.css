@@ -187,22 +187,26 @@
 }
 
 /* Custom CSS overrides to hide html5-qrcode's default white targeting box */
-#reader__scan_region img {
+#reader__scan_region img,
+#login-reader__scan_region img {
   display: none !important;
 }
 
-#reader__scan_region > div {
+#reader__scan_region > div,
+#login-reader__scan_region > div {
   border: none !important;
 }
 
 /* Hide default html5-qrcode border paths/rectangles */
-#reader__scan_region svg rect {
+#reader__scan_region svg rect,
+#login-reader__scan_region svg rect {
   stroke: transparent !important;
   display: none !important;
 }
 
 /* Ensure html5-qrcode video element takes full size of container */
-#reader video {
+#reader video,
+#login-reader video {
   width: 100% !important;
   height: 100% !important;
   object-fit: cover !important;

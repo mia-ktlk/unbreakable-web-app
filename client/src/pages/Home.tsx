@@ -28,7 +28,11 @@ import {
   Facebook,
   Linkedin,
   MessageSquare,
-  History as HistoryIcon
+  History as HistoryIcon,
+  Mic,
+  LogIn,
+  User,
+  LogOut
 } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -36,6 +40,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import { Html5Qrcode } from "html5-qrcode";
 import { useRef } from "react";
 
@@ -102,6 +107,16 @@ export default function Home() {
   const [showScanResult, setShowScanResult] = useState(false);
   const [scannedMember, setScannedIdMember] = useState<Member | null>(null);
   const [manualQrInput, setManualQrInput] = useState("");
+
+  // Auth states
+  const [loggedInUser, setLoggedInUser] = useState<Member | null>(null);
+  const [profileOpen, setProfileOpen] = useState(false);
+
+  // Login scanner states
+  const loginQrScannerRef = useRef<Html5Qrcode | null>(null);
+  const [isLoginCameraScanning, setIsLoginCameraScanning] = useState(false);
+  const [loginCameraError, setLoginCameraError] = useState<string | null>(null);
+  const [loginManualQrInput, setLoginManualQrInput] = useState("");
   
   // Camera Scanner ref and active state
   const qrScannerRef = useRef<Html5Qrcode | null>(null);
@@ -113,6 +128,7 @@ export default function Home() {
   const [selectedSession, setSelectedSession] = useState<Session | null>(null);
   const [selectedSponsor, setSelectedSponsor] = useState<Sponsor | null>(null);
   const [selectedScanDetail, setSelectedScanDetail] = useState<ScanRecord | null>(null);
+  const [selectedAttendee, setSelectedAttendee] = useState<Member | null>(null);
   const [feedbackOpen, setFeedbackOpen] = useState(false);
 
   // Load static JSON data
@@ -156,6 +172,9 @@ export default function Home() {
 
     const favExhibitors = localStorage.getItem("metfix_fav_exhibitors");
     if (favExhibitors) setFavoriteExhibitors(JSON.parse(favExhibitors));
+
+    const savedUser = localStorage.getItem("metfix_user");
+    if (savedUser) setLoggedInUser(JSON.parse(savedUser));
   }, []);
 
   // Automatically scroll to the top of the window when switching tabs or routes
@@ -455,6 +474,89 @@ export default function Home() {
     }
   }, [currentTab]);
 
+  const authenticateUser = (member: Member) => {
+    setLoggedInUser(member);
+    saveToLocalStorage("metfix_user", member);
+    toast.success(`Welcome, ${member.name}!`);
+  };
+
+  const handleLoginScan = (code: string) => {
+    if (!code) return;
+    const cleanCode = code.trim();
+
+    const foundSpeaker = speakers.find(s => s.id === cleanCode);
+    if (foundSpeaker) {
+      authenticateUser(foundSpeaker);
+      stopLoginCameraScanner();
+      return;
+    }
+
+    const foundMember = members.find(m => m.id === cleanCode);
+    if (foundMember) {
+      authenticateUser(foundMember);
+      stopLoginCameraScanner();
+      return;
+    }
+
+    toast.error("Badge not recognized. Please scan a valid summit badge.");
+  };
+
+  const logout = () => {
+    setLoggedInUser(null);
+    localStorage.removeItem("metfix_user");
+    setProfileOpen(false);
+    toast.success("Logged out successfully");
+  };
+
+  const startLoginCameraScanner = async () => {
+    setLoginCameraError(null);
+    setIsLoginCameraScanning(true);
+
+    setTimeout(async () => {
+      try {
+        const scanner = new Html5Qrcode("login-reader");
+        loginQrScannerRef.current = scanner;
+
+        await scanner.start(
+          { facingMode: "environment" },
+          {
+            fps: 10,
+            qrbox: (width, height) => {
+              const size = Math.min(width, height) * 0.7;
+              return { width: size, height: size };
+            }
+          },
+          (decodedText) => {
+            handleLoginScan(decodedText);
+          },
+          () => {}
+        );
+      } catch (err: any) {
+        console.error("Login Camera Scanner Error:", err);
+        setLoginCameraError(err?.message || "Failed to initialize camera scanner. Make sure camera permission is granted.");
+        setIsLoginCameraScanning(false);
+      }
+    }, 100);
+  };
+
+  const stopLoginCameraScanner = async () => {
+    if (loginQrScannerRef.current && loginQrScannerRef.current.isScanning) {
+      try {
+        await loginQrScannerRef.current.stop();
+      } catch (err) {
+        console.error("Error stopping login scanner:", err);
+      }
+    }
+    loginQrScannerRef.current = null;
+    setIsLoginCameraScanning(false);
+  };
+
+  useEffect(() => {
+    if (currentTab !== "login") {
+      stopLoginCameraScanner();
+    }
+  }, [currentTab]);
+
   // QR Code lookup & Scan actions
   const handleScan = (code: string) => {
     if (!code) return;
@@ -595,9 +697,38 @@ export default function Home() {
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <span className="text-[10px] px-2 py-0.5 rounded-full border border-[#c4b396]/20 bg-[#c4b396]/5 text-[#c4b396] font-semibold uppercase tracking-wider">
-              Miami 2026
-            </span>
+            {loggedInUser ? (
+              <button
+                onClick={() => setProfileOpen(true)}
+                className="p-2 rounded-full border border-[#c4b396]/20 bg-[#c4b396]/5 text-[#c4b396] hover:bg-[#c4b396]/10 transition-all"
+                aria-label="Profile"
+              >
+                <User className="h-4 w-4" />
+              </button>
+            ) : (
+              <button
+                onClick={() => handleTabChange("login")}
+                className={`p-2 rounded-full border transition-all ${
+                  currentTab === "login"
+                    ? "border-[#c4b396] bg-[#c4b396]/15 text-[#c4b396]"
+                    : "border-[#c4b396]/20 bg-[#c4b396]/5 text-[#c4b396] hover:bg-[#c4b396]/10"
+                }`}
+                aria-label="Log in"
+              >
+                <LogIn className="h-4 w-4" />
+              </button>
+            )}
+            <button
+              onClick={() => handleTabChange("saved")}
+              className={`p-2 rounded-full border transition-all ${
+                currentTab === "saved"
+                  ? "border-[#c4b396] bg-[#c4b396]/15 text-[#c4b396]"
+                  : "border-[#c4b396]/20 bg-[#c4b396]/5 text-[#c4b396] hover:bg-[#c4b396]/10"
+              }`}
+              aria-label="Saved items"
+            >
+              <Bookmark className="h-4 w-4" />
+            </button>
           </div>
         </div>
       </header>
@@ -613,7 +744,7 @@ export default function Home() {
             {/* UPCOMING SESSIONS / HIGHLIGHT (MOVED TO TOP) */}
             <div className="space-y-3">
               <div className="flex justify-between items-center">
-                <h3 className="text-xs font-bold uppercase tracking-widest text-[#c4b396] font-serif-luxury">Featured Headliners</h3>
+                <h3 className="text-xs font-bold uppercase tracking-widest text-[#c4b396] font-serif-luxury">Our Speakers</h3>
                 <Button 
                   variant="link" 
                   onClick={() => handleTabChange("speakers")}
@@ -911,6 +1042,129 @@ export default function Home() {
             </div>
 
 
+          </div>
+        )}
+
+        {/* ========================================================================= */}
+        {/* LOGIN TAB */}
+        {/* ========================================================================= */}
+        {!isSpeakerDetailRoute && currentTab === "login" && (
+          <div className="space-y-6 animate-fade-in">
+            {loggedInUser ? (
+              <div className="rounded-2xl border border-[#c4b396]/30 bg-gradient-to-b from-[#121214] to-[#0A0A0A] p-8 text-center shadow-2xl space-y-4">
+                <div className="mx-auto h-16 w-16 rounded-full bg-[#c4b396]/15 border border-[#c4b396]/30 flex items-center justify-center">
+                  <Check className="h-8 w-8 text-[#c4b396]" />
+                </div>
+                <div className="space-y-2">
+                  <p className="text-[10px] font-bold text-[#8E9CAE] uppercase tracking-widest">Authenticated</p>
+                  <h2 className="text-2xl font-bold text-white font-serif-luxury">
+                    Welcome {loggedInUser.name}
+                  </h2>
+                  <p className="text-xs text-[#8E9CAE]">
+                    You&apos;re logged in. Tap your profile icon in the header to view your details.
+                  </p>
+                </div>
+                <Button
+                  onClick={() => handleTabChange("home")}
+                  className="bg-[#c4b396] hover:bg-[#c4b396]/80 text-[#070707] font-bold text-xs uppercase tracking-wider h-10 px-6 rounded-lg"
+                >
+                  Continue to Home
+                </Button>
+              </div>
+            ) : (
+              <>
+                <div className="text-center space-y-2">
+                  <h2 className="text-xl font-bold uppercase tracking-wider text-[#c4b396] font-serif-luxury">Log In</h2>
+                  <p className="text-xs text-[#8E9CAE] max-w-xs mx-auto">
+                    Scan your summit badge to authenticate and log in.
+                  </p>
+                </div>
+
+                <div className="relative rounded-2xl overflow-hidden border-2 border-[#c4b396]/30 bg-[#121214] aspect-square flex flex-col items-center justify-center text-center shadow-2xl">
+                  <div id="login-reader" className={`absolute inset-0 w-full h-full object-cover bg-black ${isLoginCameraScanning ? "block" : "hidden"}`}></div>
+
+                  {!isLoginCameraScanning && (
+                    <div className="p-6 flex flex-col items-center justify-center z-10 space-y-4">
+                      <div className="absolute top-4 left-4 h-6 w-6 border-t-2 border-l-2 border-[#c4b396]"></div>
+                      <div className="absolute top-4 right-4 h-6 w-6 border-t-2 border-r-2 border-[#c4b396]"></div>
+                      <div className="absolute bottom-4 left-4 h-6 w-6 border-b-2 border-l-2 border-[#c4b396]"></div>
+                      <div className="absolute bottom-4 right-4 h-6 w-6 border-b-2 border-r-2 border-[#c4b396]"></div>
+
+                      <LogIn className="h-16 w-16 text-[#c4b396]/40 mb-2 animate-pulse" />
+
+                      <div className="space-y-1">
+                        <p className="text-xs font-bold text-white uppercase tracking-wider">Badge Authentication</p>
+                        <p className="text-[10px] text-[#8E9CAE] max-w-[240px] leading-relaxed">
+                          Point your camera at the QR code on your summit badge to sign in.
+                        </p>
+                      </div>
+
+                      {loginCameraError && (
+                        <p className="text-[9px] text-red-400 font-semibold max-w-[240px] leading-normal bg-red-950/20 border border-red-900/40 p-2 rounded-lg">
+                          {loginCameraError}
+                        </p>
+                      )}
+
+                      <Button
+                        onClick={startLoginCameraScanner}
+                        className="bg-[#c4b396] hover:bg-[#c4b396]/80 text-[#070707] font-bold text-xs uppercase tracking-wider px-6 h-10 rounded-lg shadow-lg"
+                      >
+                        Scan Badge
+                      </Button>
+                    </div>
+                  )}
+
+                  {isLoginCameraScanning && (
+                    <>
+                      <div className="absolute inset-0 pointer-events-none border-[30px] border-black/60 flex items-center justify-center">
+                        <div className="relative w-48 h-48 border-2 border-[#c4b396] rounded-xl shadow-[0_0_15px_rgba(196,179,150,0.3)]">
+                          <div className="absolute -top-1 -left-1 h-4 w-4 border-t-4 border-l-4 border-[#c4b396]"></div>
+                          <div className="absolute -top-1 -right-1 h-4 w-4 border-t-4 border-r-4 border-[#c4b396]"></div>
+                          <div className="absolute -bottom-1 -left-1 h-4 w-4 border-b-4 border-l-4 border-[#c4b396]"></div>
+                          <div className="absolute -bottom-1 -right-1 h-4 w-4 border-b-4 border-r-4 border-[#c4b396]"></div>
+                          <div className="absolute top-0 left-0 w-full h-0.5 bg-[#c4b396] shadow-[0_0_10px_#c4b396] animate-bounce" style={{ animationDuration: "2.5s" }}></div>
+                        </div>
+                      </div>
+
+                      <Button
+                        onClick={stopLoginCameraScanner}
+                        variant="outline"
+                        className="absolute bottom-4 z-20 border-[#c4b396]/30 text-white hover:bg-neutral-900/80 bg-black/40 text-[10px] font-bold uppercase tracking-wider h-8 px-4"
+                      >
+                        Stop Camera
+                      </Button>
+                    </>
+                  )}
+                </div>
+
+                <div className="rounded-xl border border-[#c4b396]/10 bg-[#121214] p-4 space-y-3 shadow-lg">
+                  <p className="text-[9px] font-bold text-[#8E9CAE] uppercase tracking-wider">Manual Badge ID</p>
+                  <div className="flex gap-2">
+                    <Input
+                      value={loginManualQrInput}
+                      onChange={(e) => setLoginManualQrInput(e.target.value)}
+                      placeholder="Enter badge QR code"
+                      className="bg-[#070707] border-[#c4b396]/20 text-white text-xs h-10"
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          handleLoginScan(loginManualQrInput);
+                          setLoginManualQrInput("");
+                        }
+                      }}
+                    />
+                    <Button
+                      onClick={() => {
+                        handleLoginScan(loginManualQrInput);
+                        setLoginManualQrInput("");
+                      }}
+                      className="bg-[#c4b396] hover:bg-[#c4b396]/80 text-[#070707] font-bold text-xs uppercase tracking-wider h-10 px-4 shrink-0"
+                    >
+                      Log In
+                    </Button>
+                  </div>
+                </div>
+              </>
+            )}
           </div>
         )}
 
@@ -1498,7 +1752,66 @@ export default function Home() {
         )}
 
         {/* ========================================================================= */}
-        {/* 7. MY SAVED ITEMS TAB */}
+        {/* 7. ATTENDEES TAB */}
+        {/* ========================================================================= */}
+        {!isSpeakerDetailRoute && currentTab === "attendees" && (
+          <div className="space-y-6 animate-fade-in">
+            <div className="text-center space-y-2">
+              <h2 className="text-xl font-bold uppercase tracking-wider text-[#c4b396] font-serif-luxury">Attendees</h2>
+              <p className="text-xs text-[#8E9CAE]">Browse registered summit attendees.</p>
+            </div>
+
+            <div className="relative">
+              <Search className="absolute left-3 top-2.5 h-4 w-4 text-[#8E9CAE]" />
+              <Input
+                type="text"
+                placeholder="Search attendees by name or company..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="bg-[#121214] border-[#c4b396]/15 focus:border-[#c4b396] pl-9 text-white placeholder:text-[#8E9CAE]/40"
+              />
+            </div>
+
+            <div className="grid grid-cols-1 gap-3">
+              {members
+                .filter((member) => member.type === "attendee")
+                .filter((member) => {
+                  const query = searchQuery.toLowerCase();
+                  return (
+                    member.name.toLowerCase().includes(query) ||
+                    member.company.toLowerCase().includes(query) ||
+                    member.role.toLowerCase().includes(query)
+                  );
+                })
+                .map((member) => (
+                  <div
+                    key={member.id}
+                    role="button"
+                    tabIndex={0}
+                    onClick={() => setSelectedAttendee(member)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        e.preventDefault();
+                        setSelectedAttendee(member);
+                      }
+                    }}
+                    className="rounded-xl border border-[#c4b396]/10 bg-[#121214] p-4 flex items-center gap-3 hover:border-[#c4b396]/30 transition-all cursor-pointer"
+                  >
+                    <div className="h-10 w-10 rounded-full bg-[#c4b396]/10 border border-[#c4b396]/20 flex items-center justify-center text-[#c4b396] font-bold text-sm shrink-0">
+                      {member.name.charAt(0)}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <h3 className="text-sm font-bold text-white truncate">{member.name}</h3>
+                      <p className="text-[10px] text-[#8E9CAE] truncate">{member.role || member.company}</p>
+                    </div>
+                  </div>
+                ))}
+            </div>
+          </div>
+        )}
+
+        {/* ========================================================================= */}
+        {/* 8. MY SAVED ITEMS TAB */}
         {/* ========================================================================= */}
         {!isSpeakerDetailRoute && currentTab === "saved" && (
           <div className="space-y-6 animate-fade-in">
@@ -2004,7 +2317,151 @@ export default function Home() {
         </Dialog>
       )}
 
-      {/* 4. SCAN RECORD DETAIL DIALOG */}
+      {/* 4. ATTENDEE DETAIL DIALOG */}
+      {selectedAttendee && (
+        <Dialog open={!!selectedAttendee} onOpenChange={() => setSelectedAttendee(null)}>
+          <DialogContent className="w-[calc(100%-2rem)] max-w-md overflow-x-hidden bg-[#121214] border-[#c4b396]/30 text-[#F8FAFC] p-6 space-y-4">
+            <div className="sr-only">
+              <DialogTitle>{selectedAttendee.name}</DialogTitle>
+              <DialogDescription>Attendee profile details</DialogDescription>
+            </div>
+            <div className="text-center space-y-1 min-w-0">
+              <span className="text-[8px] font-black px-2 py-0.5 rounded bg-[#c4b396]/10 text-[#c4b396] border border-[#c4b396]/20 uppercase tracking-widest">
+                Attendee Profile
+              </span>
+              <h3 className="text-lg font-bold text-white font-serif-luxury pt-1 break-words">
+                {selectedAttendee.name}
+              </h3>
+            </div>
+
+            <div className="rounded-xl bg-[#18181B] border border-neutral-800 p-4 space-y-3 min-w-0 overflow-hidden">
+              <div className="flex gap-3 items-start min-w-0">
+                {(() => {
+                  const matchedSpeaker =
+                    speakers.find(s => s.id === selectedAttendee.id) ||
+                    speakers.find(
+                      s =>
+                        s.name.toLowerCase() === selectedAttendee.name.toLowerCase() ||
+                        (s.email &&
+                          selectedAttendee.email &&
+                          s.email.toLowerCase() === selectedAttendee.email.toLowerCase())
+                    );
+                  if (matchedSpeaker?.image) {
+                    return (
+                      <img
+                        src={matchedSpeaker.image}
+                        alt={selectedAttendee.name}
+                        className="h-12 w-12 shrink-0 rounded-lg object-cover object-top border border-[#c4b396]/30 bg-neutral-900"
+                        onError={e => {
+                          (e.target as HTMLImageElement).src = `https://api.dicebear.com/7.x/initials/svg?seed=${selectedAttendee.name}&backgroundColor=121214&textColor=D4AF37`;
+                        }}
+                      />
+                    );
+                  }
+                  return (
+                    <div className="h-12 w-12 shrink-0 rounded-lg bg-neutral-800 flex items-center justify-center text-[#c4b396] font-bold text-sm">
+                      {selectedAttendee.name.charAt(0)}
+                    </div>
+                  );
+                })()}
+                <div className="min-w-0 flex-1">
+                  <h4 className="text-xs font-bold text-[#c4b396] break-words">
+                    {selectedAttendee.role || "Attendee"}
+                  </h4>
+                  {selectedAttendee.company && (
+                    <p className="text-xs text-white break-words">{selectedAttendee.company}</p>
+                  )}
+                </div>
+                <span className="text-[8px] font-black px-2 py-0.5 rounded bg-neutral-800 text-white uppercase tracking-wider shrink-0">
+                  {selectedAttendee.type}
+                </span>
+              </div>
+
+              <div className="pt-2 border-t border-neutral-800/60 space-y-1 text-[11px] text-[#8E9CAE] min-w-0">
+                {selectedAttendee.email && (
+                  <p className="flex items-start gap-1.5 break-all">
+                    <Mail className="h-3 w-3 shrink-0 text-[#c4b396] mt-0.5" />
+                    <a href={`mailto:${selectedAttendee.email}`} className="hover:text-white transition-colors">
+                      {selectedAttendee.email}
+                    </a>
+                  </p>
+                )}
+                {selectedAttendee.phone && (
+                  <p className="flex items-start gap-1.5 break-all">
+                    <Phone className="h-3 w-3 shrink-0 text-[#c4b396] mt-0.5" />
+                    <a href={`tel:${selectedAttendee.phone}`} className="hover:text-white transition-colors">
+                      {selectedAttendee.phone}
+                    </a>
+                  </p>
+                )}
+                {selectedAttendee.website && (
+                  <p className="flex items-start gap-1.5 break-all">
+                    <Globe className="h-3 w-3 shrink-0 text-[#c4b396] mt-0.5" />
+                    <a
+                      href={selectedAttendee.website.startsWith("http") ? selectedAttendee.website : `https://${selectedAttendee.website}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="hover:text-white transition-colors"
+                    >
+                      {selectedAttendee.website}
+                    </a>
+                  </p>
+                )}
+                {!selectedAttendee.email && !selectedAttendee.phone && !selectedAttendee.website && (
+                  <p className="text-[10px] text-[#8E9CAE]/70 italic">No contact details on file.</p>
+                )}
+              </div>
+            </div>
+
+            <div className="flex flex-col gap-2 pt-2 min-w-0">
+              {(() => {
+                const matchedSpeaker =
+                  speakers.find(s => s.id === selectedAttendee.id) ||
+                  speakers.find(
+                    s =>
+                      s.name.toLowerCase() === selectedAttendee.name.toLowerCase() ||
+                      (s.email &&
+                        selectedAttendee.email &&
+                        s.email.toLowerCase() === selectedAttendee.email.toLowerCase())
+                  );
+                if (!matchedSpeaker) return null;
+                return (
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      setSelectedAttendee(null);
+                      navigateToSpeaker(matchedSpeaker.id);
+                    }}
+                    className="w-full border-[#c4b396]/30 text-[#c4b396] hover:bg-[#c4b396]/10 h-10 rounded-lg text-xs uppercase font-bold"
+                  >
+                    View Speaker Profile
+                  </Button>
+                );
+              })()}
+              <div className="flex gap-2.5 min-w-0">
+                <Button
+                  onClick={() => setSelectedAttendee(null)}
+                  variant="outline"
+                  className="flex-1 min-w-0 border-neutral-800 text-[#8E9CAE] hover:text-white hover:bg-white/5 h-10 rounded-lg text-xs uppercase font-bold"
+                >
+                  Close
+                </Button>
+                <Button
+                  onClick={() => {
+                    downloadVCard(selectedAttendee);
+                    setSelectedAttendee(null);
+                  }}
+                  className="flex-1 min-w-0 bg-[#c4b396] hover:bg-[#c4b396]/80 text-[#070707] font-bold text-xs uppercase tracking-wider h-10 rounded-lg flex items-center justify-center gap-1 px-2"
+                >
+                  <FileDown className="h-4 w-4 shrink-0" /> Save Contact
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
+
+      {/* 5. SCAN RECORD DETAIL DIALOG */}
       {selectedScanDetail && (
         <Dialog open={!!selectedScanDetail} onOpenChange={() => setSelectedScanDetail(null)}>
           <DialogContent className="max-w-md bg-[#121214] border-[#c4b396]/30 text-[#F8FAFC] p-6 space-y-4">
@@ -2079,7 +2536,7 @@ export default function Home() {
         </Dialog>
       )}
 
-      {/* 5. SPONSOR DETAIL DIALOG */}
+      {/* 6. SPONSOR DETAIL DIALOG */}
       {selectedSponsor && (
         <Dialog open={!!selectedSponsor} onOpenChange={() => setSelectedSponsor(null)}>
           <DialogContent className="max-w-md bg-[#121214] border-[#c4b396]/30 text-[#F8FAFC] p-6 space-y-4">
@@ -2288,6 +2745,103 @@ export default function Home() {
         </DialogContent>
       </Dialog>
 
+      {/* PROFILE SIDEBAR */}
+      <Sheet open={profileOpen} onOpenChange={setProfileOpen}>
+        <SheetContent
+          side="right"
+          className="bg-[#121214] border-[#c4b396]/15 text-[#F8FAFC] w-full sm:max-w-sm overflow-y-auto [&>button]:text-[#8E9CAE] [&>button]:hover:text-white"
+        >
+          {loggedInUser && (
+            <>
+              <SheetHeader className="pt-2 pb-4 border-b border-[#c4b396]/10">
+                <div className="flex items-center gap-4">
+                  <div className="h-14 w-14 rounded-full bg-[#c4b396]/15 border border-[#c4b396]/30 flex items-center justify-center text-[#c4b396] font-bold text-xl shrink-0">
+                    {loggedInUser.name.charAt(0)}
+                  </div>
+                  <div className="space-y-1 text-left">
+                    <SheetTitle className="text-white font-serif-luxury text-lg">{loggedInUser.name}</SheetTitle>
+                    <SheetDescription className="text-[#8E9CAE] text-xs">
+                      {loggedInUser.role || loggedInUser.company}
+                    </SheetDescription>
+                  </div>
+                </div>
+              </SheetHeader>
+
+              <div className="space-y-4 py-4">
+                <div className="flex items-center gap-2">
+                  <span className="text-[9px] font-bold px-2 py-0.5 rounded-full bg-[#c4b396]/10 text-[#c4b396] border border-[#c4b396]/20 uppercase tracking-wider">
+                    {loggedInUser.type || "attendee"}
+                  </span>
+                </div>
+
+                {loggedInUser.company && loggedInUser.company !== loggedInUser.role && (
+                  <div className="rounded-xl border border-[#c4b396]/10 bg-[#070707] p-3 space-y-1">
+                    <p className="text-[9px] font-bold text-[#8E9CAE] uppercase tracking-wider">Company</p>
+                    <p className="text-sm text-white">{loggedInUser.company}</p>
+                  </div>
+                )}
+
+                {loggedInUser.email && (
+                  <a
+                    href={`mailto:${loggedInUser.email}`}
+                    className="flex items-center gap-3 rounded-xl border border-[#c4b396]/10 bg-[#070707] p-3 hover:border-[#c4b396]/30 transition-all"
+                  >
+                    <Mail className="h-4 w-4 text-[#c4b396] shrink-0" />
+                    <div className="min-w-0">
+                      <p className="text-[9px] font-bold text-[#8E9CAE] uppercase tracking-wider">Email</p>
+                      <p className="text-xs text-white truncate">{loggedInUser.email}</p>
+                    </div>
+                  </a>
+                )}
+
+                {loggedInUser.phone && (
+                  <a
+                    href={`tel:${loggedInUser.phone}`}
+                    className="flex items-center gap-3 rounded-xl border border-[#c4b396]/10 bg-[#070707] p-3 hover:border-[#c4b396]/30 transition-all"
+                  >
+                    <Phone className="h-4 w-4 text-[#c4b396] shrink-0" />
+                    <div className="min-w-0">
+                      <p className="text-[9px] font-bold text-[#8E9CAE] uppercase tracking-wider">Phone</p>
+                      <p className="text-xs text-white">{loggedInUser.phone}</p>
+                    </div>
+                  </a>
+                )}
+
+                {loggedInUser.website && (
+                  <a
+                    href={loggedInUser.website}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-3 rounded-xl border border-[#c4b396]/10 bg-[#070707] p-3 hover:border-[#c4b396]/30 transition-all"
+                  >
+                    <Globe className="h-4 w-4 text-[#c4b396] shrink-0" />
+                    <div className="min-w-0">
+                      <p className="text-[9px] font-bold text-[#8E9CAE] uppercase tracking-wider">Website</p>
+                      <p className="text-xs text-[#c4b396] truncate">{loggedInUser.website.replace(/^https?:\/\//, "")}</p>
+                    </div>
+                  </a>
+                )}
+
+                <div className="rounded-xl border border-[#c4b396]/10 bg-[#070707] p-3 space-y-1">
+                  <p className="text-[9px] font-bold text-[#8E9CAE] uppercase tracking-wider">Badge ID</p>
+                  <p className="text-xs text-white font-mono break-all">{loggedInUser.id}</p>
+                </div>
+              </div>
+
+              <div className="mt-auto pt-4 border-t border-[#c4b396]/10">
+                <Button
+                  onClick={logout}
+                  variant="outline"
+                  className="w-full border-red-900/40 text-red-400 hover:bg-red-950/20 hover:text-red-300 h-10 rounded-lg text-xs font-bold uppercase tracking-wider gap-2"
+                >
+                  <LogOut className="h-4 w-4" /> Log Out
+                </Button>
+              </div>
+            </>
+          )}
+        </SheetContent>
+      </Sheet>
+
       {/* BOTTOM TAB NAVIGATION */}
       <nav className="fixed bottom-0 left-0 right-0 z-40 border-t border-[#c4b396]/15 bg-[#070707]/95 backdrop-blur-md pt-2 pb-safe px-4 shadow-[0_-5px_20px_rgba(0,0,0,0.5)]">
         <div className="max-w-md mx-auto flex justify-between items-center">
@@ -2319,16 +2873,16 @@ export default function Home() {
             onClick={() => handleTabChange("speakers")}
             className={`flex flex-col items-center gap-1 transition-all ${currentTab === "speakers" ? "text-[#c4b396]" : "text-[#8E9CAE] hover:text-white"}`}
           >
-            <Users className="h-5 w-5" />
+            <Mic className="h-5 w-5" />
             <span className="text-[9px] font-bold uppercase tracking-wider">Speakers</span>
           </button>
           
           <button 
-            onClick={() => handleTabChange("saved")}
-            className={`flex flex-col items-center gap-1 transition-all ${currentTab === "saved" ? "text-[#c4b396]" : "text-[#8E9CAE] hover:text-white"}`}
+            onClick={() => handleTabChange("attendees")}
+            className={`flex flex-col items-center gap-1 transition-all ${currentTab === "attendees" ? "text-[#c4b396]" : "text-[#8E9CAE] hover:text-white"}`}
           >
-            <Bookmark className="h-5 w-5" />
-            <span className="text-[9px] font-bold uppercase tracking-wider">Saved</span>
+            <Users className="h-5 w-5" />
+            <span className="text-[9px] font-bold uppercase tracking-wider">Attendees</span>
           </button>
         </div>
       </nav>

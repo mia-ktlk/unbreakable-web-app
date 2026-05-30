@@ -6,6 +6,9 @@ export interface Member {
   email?: string;
   website?: string;
   phone?: string;
+  instagram?: string;
+  facebook?: string;
+  linkedin?: string;
   type: string; // support attendee, speaker, panelist, mc, etc.
 }
 
@@ -13,7 +16,6 @@ export interface Speaker extends Member {
   image?: string;
   bio?: string;
   sessions: string[];
-  instagram?: string;
 }
 
 export interface Session {
@@ -70,4 +72,7 @@ export interface ScanRecord {
   email?: string;
   phone?: string;
   website?: string;
+  instagram?: string;
+  facebook?: string;
+  linkedin?: string;
 }

@@ -12,6 +12,9 @@ create table if not exists public.profile_overrides (
   website text,
   company text,
   role text,
+  instagram text,
+  facebook text,
+  linkedin text,
   updated_at timestamptz not null default now()
 );
 

@@ -57,6 +57,7 @@ import {
   mergeMembersWithOverrides,
   updateProfile,
 } from "@/lib/profiles";
+import { hasContactDetails, MemberSocialLinks } from "@/components/MemberSocialLinks";
 
 const speakerPlaceholderUrl = (name = "Speaker") =>
   `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(name)}&backgroundColor=121214&textColor=D4AF37`;
@@ -129,6 +130,9 @@ export default function Home() {
     website: "",
     company: "",
     role: "",
+    instagram: "",
+    facebook: "",
+    linkedin: "",
   });
 
   // Login scanner states
@@ -285,6 +289,9 @@ export default function Home() {
       person.email ? `EMAIL:${person.email}` : "",
       person.phone ? `TEL:${person.phone}` : "",
       person.website ? `URL:${person.website}` : "",
+      person.instagram ? `URL;TYPE=Instagram:${person.instagram}` : "",
+      person.facebook ? `URL;TYPE=Facebook:${person.facebook}` : "",
+      person.linkedin ? `URL;TYPE=LinkedIn:${person.linkedin}` : "",
       "END:VCARD"
     ].filter(Boolean).join("\n");
 
@@ -530,6 +537,9 @@ export default function Home() {
       website: loggedInUser.website ?? "",
       company: loggedInUser.company ?? "",
       role: loggedInUser.role ?? "",
+      instagram: loggedInUser.instagram ?? "",
+      facebook: loggedInUser.facebook ?? "",
+      linkedin: loggedInUser.linkedin ?? "",
     });
     setIsEditingProfile(true);
   };
@@ -546,6 +556,9 @@ export default function Home() {
         website: profileForm.website,
         company: profileForm.company,
         role: profileForm.role,
+        instagram: profileForm.instagram,
+        facebook: profileForm.facebook,
+        linkedin: profileForm.linkedin,
       });
 
       const updatedUser = applyProfileOverride(loggedInUser, saved);
@@ -657,7 +670,10 @@ export default function Home() {
     const persistScan = (
       name: string,
       type: string,
-      contact?: Pick<Member, "role" | "company" | "email" | "phone" | "website">
+      contact?: Pick<
+        Member,
+        "role" | "company" | "email" | "phone" | "website" | "instagram" | "facebook" | "linkedin"
+      >
     ) => {
       const exists = savedScans.some(s => s.memberId === cleanCode);
       if (!exists) {
@@ -673,7 +689,10 @@ export default function Home() {
           company: contact?.company,
           email: contact?.email,
           phone: contact?.phone,
-          website: contact?.website
+          website: contact?.website,
+          instagram: contact?.instagram,
+          facebook: contact?.facebook,
+          linkedin: contact?.linkedin,
         };
 
         const updated = [record, ...savedScans];
@@ -1569,6 +1588,21 @@ export default function Home() {
                             <Globe className="h-4 w-4 text-[#c4b396]/70" /> Website
                           </a>
                         )}
+                        {speaker.instagram && (
+                          <a href={speaker.instagram.startsWith("http") ? speaker.instagram : `https://${speaker.instagram}`} target="_blank" rel="noopener noreferrer" className="text-[10px] text-[#8E9CAE] hover:text-[#c4b396] flex flex-col items-center gap-1">
+                            <Instagram className="h-4 w-4 text-[#c4b396]/70" /> Instagram
+                          </a>
+                        )}
+                        {speaker.facebook && (
+                          <a href={speaker.facebook.startsWith("http") ? speaker.facebook : `https://${speaker.facebook}`} target="_blank" rel="noopener noreferrer" className="text-[10px] text-[#8E9CAE] hover:text-[#c4b396] flex flex-col items-center gap-1">
+                            <Facebook className="h-4 w-4 text-[#c4b396]/70" /> Facebook
+                          </a>
+                        )}
+                        {speaker.linkedin && (
+                          <a href={speaker.linkedin.startsWith("http") ? speaker.linkedin : `https://${speaker.linkedin}`} target="_blank" rel="noopener noreferrer" className="text-[10px] text-[#8E9CAE] hover:text-[#c4b396] flex flex-col items-center gap-1">
+                            <Linkedin className="h-4 w-4 text-[#c4b396]/70" /> LinkedIn
+                          </a>
+                        )}
                       </div>
 
                       {/* Bio */}
@@ -2372,6 +2406,7 @@ export default function Home() {
                     {scannedMember.email && <p className="flex items-start gap-1.5 break-all"><Mail className="h-3 w-3 shrink-0 text-[#c4b396] mt-0.5" /> {scannedMember.email}</p>}
                     {scannedMember.phone && <p className="flex items-start gap-1.5 break-all"><Phone className="h-3 w-3 shrink-0 text-[#c4b396] mt-0.5" /> {scannedMember.phone}</p>}
                     {scannedMember.website && <p className="flex items-start gap-1.5 break-all"><Globe className="h-3 w-3 shrink-0 text-[#c4b396] mt-0.5" /> {scannedMember.website}</p>}
+                    <MemberSocialLinks person={scannedMember} variant="inline" />
                   </div>
                 </div>
               ) : (
@@ -2498,7 +2533,8 @@ export default function Home() {
                     </a>
                   </p>
                 )}
-                {!selectedAttendee.email && !selectedAttendee.phone && !selectedAttendee.website && (
+                <MemberSocialLinks person={selectedAttendee} variant="inline" />
+                {!hasContactDetails(selectedAttendee) && (
                   <p className="text-[10px] text-[#8E9CAE]/70 italic">No contact details on file.</p>
                 )}
               </div>
@@ -2605,6 +2641,7 @@ export default function Home() {
                 {selectedScanDetail.email && <p className="flex items-center gap-1.5"><Mail className="h-3 w-3 text-[#c4b396]" /> {selectedScanDetail.email}</p>}
                 {selectedScanDetail.phone && <p className="flex items-center gap-1.5"><Phone className="h-3 w-3 text-[#c4b396]" /> {selectedScanDetail.phone}</p>}
                 {selectedScanDetail.website && <p className="flex items-center gap-1.5"><Globe className="h-3 w-3 text-[#c4b396]" /> {selectedScanDetail.website}</p>}
+                <MemberSocialLinks person={selectedScanDetail} variant="inline" />
               </div>
             </div>
 
@@ -2948,6 +2985,45 @@ export default function Home() {
                         placeholder="https://yoursite.com"
                       />
                     </div>
+
+                    <div className="space-y-1.5">
+                      <Label htmlFor="profile-instagram" className="text-[9px] font-bold text-[#8E9CAE] uppercase tracking-wider">
+                        Instagram
+                      </Label>
+                      <Input
+                        id="profile-instagram"
+                        value={profileForm.instagram}
+                        onChange={(e) => setProfileForm((prev) => ({ ...prev, instagram: e.target.value }))}
+                        className="bg-[#070707] border-[#c4b396]/20 text-white text-xs h-10"
+                        placeholder="https://instagram.com/you"
+                      />
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <Label htmlFor="profile-facebook" className="text-[9px] font-bold text-[#8E9CAE] uppercase tracking-wider">
+                        Facebook
+                      </Label>
+                      <Input
+                        id="profile-facebook"
+                        value={profileForm.facebook}
+                        onChange={(e) => setProfileForm((prev) => ({ ...prev, facebook: e.target.value }))}
+                        className="bg-[#070707] border-[#c4b396]/20 text-white text-xs h-10"
+                        placeholder="https://facebook.com/you"
+                      />
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <Label htmlFor="profile-linkedin" className="text-[9px] font-bold text-[#8E9CAE] uppercase tracking-wider">
+                        LinkedIn
+                      </Label>
+                      <Input
+                        id="profile-linkedin"
+                        value={profileForm.linkedin}
+                        onChange={(e) => setProfileForm((prev) => ({ ...prev, linkedin: e.target.value }))}
+                        className="bg-[#070707] border-[#c4b396]/20 text-white text-xs h-10"
+                        placeholder="https://linkedin.com/in/you"
+                      />
+                    </div>
                   </div>
 
                   <div className="flex gap-2 pt-2">
@@ -3036,6 +3112,8 @@ export default function Home() {
                       </div>
                     </a>
                   )}
+
+                  <MemberSocialLinks person={loggedInUser} />
 
                   <div className="rounded-xl border border-[#c4b396]/10 bg-[#070707] p-3 space-y-1">
                     <p className="text-[9px] font-bold text-[#8E9CAE] uppercase tracking-wider">Badge ID</p>

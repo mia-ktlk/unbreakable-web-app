@@ -8,6 +8,9 @@ export interface ProfileOverride {
   website: string | null;
   company: string | null;
   role: string | null;
+  instagram: string | null;
+  facebook: string | null;
+  linkedin: string | null;
   updated_at?: string;
 }
 
@@ -18,9 +21,21 @@ export interface ProfileUpdatePayload {
   website?: string;
   company?: string;
   role?: string;
+  instagram?: string;
+  facebook?: string;
+  linkedin?: string;
 }
 
-const EDITABLE_FIELDS = ["email", "phone", "website", "company", "role"] as const;
+const EDITABLE_FIELDS = [
+  "email",
+  "phone",
+  "website",
+  "company",
+  "role",
+  "instagram",
+  "facebook",
+  "linkedin",
+] as const;
 
 export function applyProfileOverride<T extends Member>(
   member: T,
@@ -54,7 +69,9 @@ export async function fetchProfileOverrides(): Promise<ProfileOverride[]> {
 
   const { data, error } = await supabase
     .from("profile_overrides")
-    .select("badge_id, email, phone, website, company, role, updated_at");
+    .select(
+      "badge_id, email, phone, website, company, role, instagram, facebook, linkedin, updated_at"
+    );
 
   if (error) {
     console.error("Failed to load profile overrides:", error);

@@ -1,4 +1,4 @@
-const CACHE_NAME = "unbreakable-summit-v2";
+const CACHE_NAME = "unbreakable-summit-v3";
 const BASE = new URL("./", self.location.href).pathname;
 const ASSETS = [
   BASE,
@@ -10,6 +10,14 @@ const ASSETS = [
   `${BASE}data/exhibitors.json`,
   `${BASE}data/members.json`,
 ];
+
+function isCacheableRequest(request) {
+  const url = new URL(request.url);
+  return (
+    url.origin === self.location.origin &&
+    (url.protocol === "http:" || url.protocol === "https:")
+  );
+}
 
 // Install Event
 self.addEventListener("install", (e) => {
@@ -37,26 +45,25 @@ self.addEventListener("activate", (e) => {
 
 // Fetch Event (Network First, fallback to Cache)
 self.addEventListener("fetch", (e) => {
-  // Only handle GET requests
   if (e.request.method !== "GET") return;
+  if (!isCacheableRequest(e.request)) return;
 
   e.respondWith(
     fetch(e.request)
       .then((res) => {
-        // Clone response and save to cache
-        const resClone = res.clone();
-        caches.open(CACHE_NAME).then((cache) => {
-          cache.put(e.request, resClone);
-        });
+        if (res.ok) {
+          const resClone = res.clone();
+          caches.open(CACHE_NAME).then((cache) => {
+            cache.put(e.request, resClone).catch(() => {});
+          });
+        }
         return res;
       })
       .catch(() => {
-        // If network fails, try cache
         return caches.match(e.request).then((cachedRes) => {
           if (cachedRes) {
             return cachedRes;
           }
-          // If fallback is index.html
           if (e.request.mode === "navigate") {
             return caches.match(`${BASE}index.html`);
           }

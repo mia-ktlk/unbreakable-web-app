@@ -52,6 +52,7 @@ import { useRef } from "react";
 import { Member, Speaker, Session, DaySchedule, Sponsor, Exhibitor, ScanRecord } from "../types";
 import { matchesSearchQuery } from "@/lib/search";
 import { cn, publicUrl } from "@/lib/utils";
+import { buildVCard } from "@/lib/vcard";
 import {
   DAY_TO_DATE,
   buildEasternTestDateTime,
@@ -451,21 +452,8 @@ export default function Home() {
 
   // vCard Generation
   const downloadVCard = (person: Partial<Member> | Partial<ScanRecord>) => {
-    const cleanName = person.name || "Attendee";
-    const vcard = [
-      "BEGIN:VCARD",
-      "VERSION:3.0",
-      `FN:${cleanName}`,
-      `ORG:${person.company || "Unbreakable Health Summit"}`,
-      `TITLE:${person.role || "Attendee"}`,
-      person.email ? `EMAIL:${person.email}` : "",
-      person.phone ? `TEL:${person.phone}` : "",
-      person.website ? `URL:${person.website}` : "",
-      person.instagram ? `URL;TYPE=Instagram:${person.instagram}` : "",
-      person.facebook ? `URL;TYPE=Facebook:${person.facebook}` : "",
-      person.linkedin ? `URL;TYPE=LinkedIn:${person.linkedin}` : "",
-      "END:VCARD"
-    ].filter(Boolean).join("\n");
+    const cleanName = person.name?.trim() || "Attendee";
+    const vcard = buildVCard(person);
 
     const blob = new Blob([vcard], { type: "text/vcard;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
@@ -1112,13 +1100,13 @@ export default function Home() {
               <div className="flex gap-3 items-center justify-stretch mb-3">
                 <button 
                   onClick={() => handleTabChange("scan")}
-                  className="flex-1 bg-[#c4b396] hover:bg-[#c4b396]/90 text-[#070707] font-bold text-[11px] uppercase tracking-wider rounded-xl h-11 flex items-center justify-center gap-2 transition-all active:scale-97 border border-transparent cursor-pointer shadow-lg shadow-[#c4b396]/10"
+                  className="flex-1 bg-[#c4b396] hover:bg-[#c4b396]/90 text-[#070707] font-bold text-[10px] uppercase tracking-wider rounded-xl h-11 flex items-center justify-center gap-2 transition-all active:scale-97 border border-transparent cursor-pointer shadow-lg shadow-[#c4b396]/10"
                 >
                   <QrCode className="h-4 w-4 shrink-0" /> Scan Badges
                 </button>
                 <button 
                   onClick={() => handleTabChange("schedule")}
-                  className="flex-1 border border-[#c4b396]/30 hover:border-[#c4b396] hover:bg-white/5 text-white font-bold text-[11px] uppercase tracking-wider rounded-xl h-11 flex items-center justify-center gap-2 transition-all active:scale-97 cursor-pointer"
+                  className="flex-1 border border-[#c4b396]/30 hover:border-[#c4b396] hover:bg-white/5 text-white font-bold text-[10px] uppercase tracking-wider rounded-xl h-11 flex items-center justify-center gap-2 transition-all active:scale-97 cursor-pointer"
                 >
                   <Calendar className="h-4 w-4 shrink-0" /> View Schedule
                 </button>
@@ -2689,11 +2677,11 @@ export default function Home() {
               <div className="flex gap-3 items-start min-w-0">
                 <MemberAvatar member={selectedAttendee} className="h-12 w-12 rounded-lg text-sm" />
                 <div className="min-w-0 flex-1">
-                  <h4 className="text-xs font-bold text-[#c4b396] break-words">
+                  <h4 className="text-[10px] font-bold text-[#c4b396] break-words">
                     {selectedAttendee.role || "Attendee"}
                   </h4>
                   {selectedAttendee.company && (
-                    <p className="text-xs text-white break-words">{selectedAttendee.company}</p>
+                    <p className="text-[10px] text-white break-words">{selectedAttendee.company}</p>
                   )}
                 </div>
                 <span className="text-[8px] font-black px-2 py-0.5 rounded bg-neutral-800 text-white uppercase tracking-wider shrink-0">
@@ -2763,7 +2751,7 @@ export default function Home() {
                       setSelectedAttendee(null);
                       navigateToSpeaker(matchedSpeaker.id);
                     }}
-                    className="w-full border-[#c4b396]/30 text-[#c4b396] hover:bg-[#c4b396]/10 h-10 rounded-lg text-xs uppercase font-bold"
+                    className="w-full border-[#c4b396]/30 text-[#c4b396] hover:bg-[#c4b396]/10 h-10 rounded-lg text-[10px] uppercase font-bold"
                   >
                     View Speaker Profile
                   </Button>
@@ -2773,7 +2761,7 @@ export default function Home() {
                 <Button
                   onClick={() => setSelectedAttendee(null)}
                   variant="outline"
-                  className="flex-1 min-w-0 border-neutral-800 text-[#8E9CAE] hover:text-white hover:bg-white/5 h-10 rounded-lg text-xs uppercase font-bold"
+                  className="flex-1 min-w-0 border-neutral-800 text-[#8E9CAE] hover:text-white hover:bg-white/5 h-10 rounded-lg text-[10px] uppercase font-bold"
                 >
                   Close
                 </Button>
@@ -2782,7 +2770,7 @@ export default function Home() {
                     downloadVCard(selectedAttendee);
                     setSelectedAttendee(null);
                   }}
-                  className="flex-1 min-w-0 bg-[#c4b396] hover:bg-[#c4b396]/80 text-[#070707] font-bold text-xs uppercase tracking-wider h-10 rounded-lg flex items-center justify-center gap-1 px-2"
+                  className="flex-1 min-w-0 bg-[#c4b396] hover:bg-[#c4b396]/80 text-[#070707] font-bold text-[10px] uppercase tracking-wider h-10 rounded-lg flex items-center justify-center gap-1 px-2"
                 >
                   <FileDown className="h-4 w-4 shrink-0" /> Save Contact
                 </Button>

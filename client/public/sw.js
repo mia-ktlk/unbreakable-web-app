@@ -1,16 +1,14 @@
-const CACHE_NAME = "unbreakable-summit-v1";
+const CACHE_NAME = "unbreakable-summit-v2";
+const BASE = new URL("./", self.location.href).pathname;
 const ASSETS = [
-  "/",
-  "/index.html",
-  "/app-domain",
-  "/src/main.tsx",
-  "/src/App.tsx",
-  "/src/index.css",
-  "/data/speakers.json",
-  "/data/schedule.json",
-  "/data/sponsors.json",
-  "/data/exhibitors.json",
-  "/data/members.json"
+  BASE,
+  `${BASE}index.html`,
+  `${BASE}manifest.json`,
+  `${BASE}data/speakers.json`,
+  `${BASE}data/schedule.json`,
+  `${BASE}data/sponsors.json`,
+  `${BASE}data/exhibitors.json`,
+  `${BASE}data/members.json`,
 ];
 
 // Install Event
@@ -60,7 +58,7 @@ self.addEventListener("fetch", (e) => {
           }
           // If fallback is index.html
           if (e.request.mode === "navigate") {
-            return caches.match("/index.html");
+            return caches.match(`${BASE}index.html`);
           }
         });
       })

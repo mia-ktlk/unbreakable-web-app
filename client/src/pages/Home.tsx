@@ -41,6 +41,7 @@ import { useRef } from "react";
 
 // Import types
 import { Member, Speaker, Session, DaySchedule, Sponsor, Exhibitor, ScanRecord } from "../types";
+import { publicUrl } from "@/lib/utils";
 
 const speakerPlaceholderUrl = (name = "Speaker") =>
   `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(name)}&backgroundColor=121214&textColor=D4AF37`;
@@ -119,11 +120,11 @@ export default function Home() {
     const loadData = async () => {
       try {
         const [resSpeakers, resSchedule, resSponsors, resExhibitors, resMembers] = await Promise.all([
-          fetch("/data/speakers.json").then(r => r.json()),
-          fetch("/data/schedule.json").then(r => r.json()),
-          fetch("/data/sponsors.json").then(r => r.json()),
-          fetch("/data/exhibitors.json").then(r => r.json()),
-          fetch("/data/members.json").then(r => r.json())
+          fetch(publicUrl("data/speakers.json")).then(r => r.json()),
+          fetch(publicUrl("data/schedule.json")).then(r => r.json()),
+          fetch(publicUrl("data/sponsors.json")).then(r => r.json()),
+          fetch(publicUrl("data/exhibitors.json")).then(r => r.json()),
+          fetch(publicUrl("data/members.json")).then(r => r.json())
         ]);
         
         setSpeakers(resSpeakers);

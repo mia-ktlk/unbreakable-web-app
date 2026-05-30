@@ -50,7 +50,38 @@ import { useRef } from "react";
 
 // Import types
 import { Member, Speaker, Session, DaySchedule, Sponsor, Exhibitor, ScanRecord } from "../types";
-import { publicUrl } from "@/lib/utils";
+import { cn, publicUrl } from "@/lib/utils";
+import {
+  DAY_TO_DATE,
+  buildEasternTestDateTime,
+  formatScheduleNowDisplay,
+  getLiveEventDay,
+  getScheduleNow,
+  isScheduleTestMode,
+  parseEasternTestDateTime,
+  getSessionStatus,
+  isDayLive,
+  parseTimeTo24h,
+  setScheduleTestNow,
+  SCHEDULE_TEST_NOW_DEFAULT,
+} from "@/lib/scheduleTime";
+
+const SCHEDULE_TEST_STORAGE_KEY = "metfix_schedule_test_now";
+
+function loadInitialScheduleTest(): string | null {
+  try {
+    const saved = localStorage.getItem(SCHEDULE_TEST_STORAGE_KEY);
+    if (saved) return saved;
+  } catch {
+    // ignore storage errors (SSR / private mode)
+  }
+  return SCHEDULE_TEST_NOW_DEFAULT;
+}
+
+const initialScheduleTestIso = loadInitialScheduleTest();
+if (initialScheduleTestIso) {
+  setScheduleTestNow(initialScheduleTestIso);
+}
 import { isSupabaseConfigured } from "@/lib/supabase";
 import {
   applyProfileOverride,
@@ -81,6 +112,14 @@ function isAfterDayRecapCutoff(): boolean {
   cutoff.setHours(0, 0, 0, 0);
   return today > cutoff;
 }
+
+const SCHEDULE_TRACKS = [
+  "Science & Medicine",
+  "Clinical Practice",
+  "Fitness",
+  "Wellness",
+  "Networking",
+];
 
 export default function Home() {
   const params = useParams<{ tab?: string; id?: string }>();
@@ -120,6 +159,18 @@ export default function Home() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedTrack, setSelectedTrack] = useState("All");
   const [selectedDay, setSelectedDay] = useState(1);
+  const [now, setNow] = useState(() => getScheduleNow());
+  const [scheduleTestEnabled, setScheduleTestEnabled] = useState(() => initialScheduleTestIso !== null);
+  const [scheduleTestDate, setScheduleTestDate] = useState(() =>
+    initialScheduleTestIso
+      ? parseEasternTestDateTime(initialScheduleTestIso).date
+      : DAY_TO_DATE[1]
+  );
+  const [scheduleTestTime, setScheduleTestTime] = useState(() =>
+    initialScheduleTestIso
+      ? parseEasternTestDateTime(initialScheduleTestIso).time
+      : "09:30"
+  );
   const [selectedSponsorTier, setSelectedSponsorTier] = useState("All");
 
   // Scanner states
@@ -243,6 +294,26 @@ export default function Home() {
     window.scrollTo({ top: 0, behavior: "instant" });
   }, [location, currentTab]);
 
+  // Live clock for schedule tracking (paused when test clock is active)
+  useEffect(() => {
+    if (isScheduleTestMode()) return;
+    const id = setInterval(() => setNow(new Date()), 30_000);
+    return () => clearInterval(id);
+  }, [scheduleTestEnabled]);
+
+  // Auto-select today's event day during the summit
+  useEffect(() => {
+    const liveDay = getLiveEventDay(getScheduleNow());
+    if (liveDay) setSelectedDay(liveDay);
+  }, []);
+
+  // Clear Past filter when the selected day is no longer live
+  useEffect(() => {
+    if (!isDayLive(selectedDay, schedule.find(d => d.day === selectedDay)?.agenda ?? [], now) && selectedTrack === "Past") {
+      setSelectedTrack("All");
+    }
+  }, [selectedDay, schedule, now, selectedTrack]);
+
   // Save state helper
   const saveToLocalStorage = (key: string, data: any) => {
     localStorage.setItem(key, JSON.stringify(data));
@@ -303,6 +374,41 @@ export default function Home() {
     setLocation(`/${value}`);
     setSearchQuery(""); // Clear search when changing tabs
     setSelectedSpeaker(null); // Clear modal speaker state
+  };
+
+  const applyScheduleTestClock = (enabled: boolean, date: string, time: string) => {
+    if (enabled) {
+      const iso = buildEasternTestDateTime(date, time);
+      setScheduleTestNow(iso);
+      localStorage.setItem(SCHEDULE_TEST_STORAGE_KEY, iso);
+      setNow(new Date(iso));
+      const liveDay = getLiveEventDay(new Date(iso));
+      if (liveDay) setSelectedDay(liveDay);
+      return;
+    }
+
+    setScheduleTestNow(null);
+    localStorage.removeItem(SCHEDULE_TEST_STORAGE_KEY);
+    setNow(new Date());
+  };
+
+  const handleScheduleTestToggle = (enabled: boolean) => {
+    setScheduleTestEnabled(enabled);
+    applyScheduleTestClock(enabled, scheduleTestDate, scheduleTestTime);
+  };
+
+  const handleScheduleTestDateChange = (date: string) => {
+    setScheduleTestDate(date);
+    if (scheduleTestEnabled) {
+      applyScheduleTestClock(true, date, scheduleTestTime);
+    }
+  };
+
+  const handleScheduleTestTimeChange = (time: string) => {
+    setScheduleTestTime(time);
+    if (scheduleTestEnabled) {
+      applyScheduleTestClock(true, scheduleTestDate, time);
+    }
   };
 
   // Favorite toggle functions
@@ -372,33 +478,16 @@ export default function Home() {
   // iCalendar (.ics) Generation
   const downloadICS = (session: Session) => {
     // Find the date for this session by checking our schedule array
-    let sessionDateStr = "2026-05-30"; // Fallback to Day 1
+    let sessionDateStr = DAY_TO_DATE[1];
     const dayObj = schedule.find(d => d.agenda.some(s => s.id === session.id));
     if (dayObj) {
-      if (dayObj.day === 2) {
-        sessionDateStr = "2026-05-31";
-      }
+      sessionDateStr = DAY_TO_DATE[dayObj.day] ?? DAY_TO_DATE[1];
     }
 
     // Parse session time string, e.g., "09:50 AM - 10:35 AM" or "12:35 PM - 01:50 PM"
     const timeParts = session.time.split(" - ");
     const startTimeStr = timeParts[0] || "09:00 AM";
     const endTimeStr = timeParts[1] || "10:00 AM";
-
-    // Helper to format time as HHMMSS
-    const parseTimeTo24h = (time12h: string) => {
-      const [time, modifier] = time12h.split(" ");
-      let [hours, minutes] = time.split(":");
-      let hrs = parseInt(hours, 10);
-      if (modifier === "PM" && hrs < 12) {
-        hrs += 12;
-      }
-      if (modifier === "AM" && hrs === 12) {
-        hrs = 0;
-      }
-      const pad = (n: number) => n.toString().padStart(2, "0");
-      return `${pad(hrs)}${pad(parseInt(minutes, 10))}00`;
-    };
 
     try {
       const dateNoDashes = sessionDateStr.replace(/-/g, "");
@@ -455,21 +544,6 @@ export default function Home() {
       return;
     }
 
-    // Helper to format time as HHMMSS
-    const parseTimeTo24h = (time12h: string) => {
-      const [time, modifier] = time12h.split(" ");
-      let [hours, minutes] = time.split(":");
-      let hrs = parseInt(hours, 10);
-      if (modifier === "PM" && hrs < 12) {
-        hrs += 12;
-      }
-      if (modifier === "AM" && hrs === 12) {
-        hrs = 0;
-      }
-      const pad = (n: number) => n.toString().padStart(2, "0");
-      return `${pad(hrs)}${pad(parseInt(minutes, 10))}00`;
-    };
-
     try {
       const icsLines = [
         "BEGIN:VCALENDAR",
@@ -480,10 +554,10 @@ export default function Home() {
       ];
 
       savedSessions.forEach(session => {
-        let sessionDateStr = "2026-05-30"; // Fallback to Day 1
+        let sessionDateStr = DAY_TO_DATE[1];
         const dayObj = schedule.find(d => d.agenda.some(s => s.id === session.id));
-        if (dayObj && dayObj.day === 2) {
-          sessionDateStr = "2026-05-31";
+        if (dayObj) {
+          sessionDateStr = DAY_TO_DATE[dayObj.day] ?? DAY_TO_DATE[1];
         }
 
         const timeParts = session.time.split(" - ");
@@ -886,6 +960,19 @@ export default function Home() {
     document.body.removeChild(link);
     toast.success("Scans exported as CSV");
   };
+
+  const dayAgenda = schedule.find(d => d.day === selectedDay)?.agenda ?? [];
+  const dayIsLive = isDayLive(selectedDay, dayAgenda, now);
+  const scheduleFilterChips = dayIsLive ? ["All", "Past", ...SCHEDULE_TRACKS] : ["All", ...SCHEDULE_TRACKS];
+  const filteredScheduleSessions = dayAgenda.filter(session => {
+    if (!dayIsLive) {
+      return selectedTrack === "All" || session.track === selectedTrack;
+    }
+    const status = getSessionStatus(selectedDay, session.time, now);
+    if (selectedTrack === "Past") return status === "past";
+    const trackMatch = selectedTrack === "All" || session.track === selectedTrack;
+    return trackMatch && status !== "past";
+  });
 
   return (
     <div className="min-h-screen bg-[#070707] text-[#F8FAFC] pb-32 flex flex-col font-sans">
@@ -1387,6 +1474,55 @@ export default function Home() {
               <p className="text-xs text-[#8E9CAE]">Ritz Carlton, Miami • May 30-31, 2026</p>
             </div>
 
+            {/* TEST CLOCK — dev UI or when a test time is already active */}
+            {(import.meta.env.DEV || scheduleTestEnabled) && (
+              <div className="rounded-lg border border-dashed border-amber-500/40 bg-amber-500/5 p-3 space-y-3">
+                <div className="flex items-center justify-between gap-2">
+                  <p className="text-[10px] font-bold uppercase tracking-wider text-amber-500">Test clock</p>
+                  <p className="text-[10px] text-[#8E9CAE]">
+                    {formatScheduleNowDisplay(now)}
+                    {scheduleTestEnabled && " (simulated)"}
+                  </p>
+                </div>
+                <label className="flex items-center gap-2 text-xs text-[#8E9CAE] cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={scheduleTestEnabled}
+                    onChange={e => handleScheduleTestToggle(e.target.checked)}
+                    className="rounded border-neutral-600"
+                  />
+                  Override event date &amp; time (Eastern)
+                </label>
+                {scheduleTestEnabled && (
+                  <div className="grid grid-cols-2 gap-2">
+                    <div className="space-y-1">
+                      <label className="text-[9px] uppercase tracking-wider text-[#8E9CAE]">Date</label>
+                      <input
+                        type="date"
+                        value={scheduleTestDate}
+                        onChange={e => handleScheduleTestDateChange(e.target.value)}
+                        className="w-full rounded-md border border-neutral-700 bg-[#070707] px-2 py-1.5 text-xs text-white"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <label className="text-[9px] uppercase tracking-wider text-[#8E9CAE]">Time (ET)</label>
+                      <input
+                        type="time"
+                        value={scheduleTestTime}
+                        onChange={e => handleScheduleTestTimeChange(e.target.value)}
+                        className="w-full rounded-md border border-neutral-700 bg-[#070707] px-2 py-1.5 text-xs text-white"
+                      />
+                    </div>
+                  </div>
+                )}
+                <p className="text-[9px] text-[#8E9CAE]/70 leading-relaxed">
+                  Or set <code className="text-amber-500/90">SCHEDULE_TEST_NOW_DEFAULT</code> in{" "}
+                  <code className="text-amber-500/90">scheduleTime.ts</code> (e.g.{" "}
+                  <code className="text-amber-500/90">"2026-05-30T09:30:00-04:00"</code>).
+                </p>
+              </div>
+            )}
+
             {/* DAY SELECTOR */}
             <div className="flex rounded-lg border border-[#c4b396]/20 bg-[#121214] p-1">
               <button 
@@ -1405,7 +1541,7 @@ export default function Home() {
 
             {/* TRACK FILTER SELECTOR */}
             <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-none">
-              {["All", "Science & Medicine", "Clinical Practice", "Fitness", "Wellness", "Networking"].map(track => (
+              {scheduleFilterChips.map(track => (
                 <button
                   key={track}
                   onClick={() => setSelectedTrack(track)}
@@ -1428,24 +1564,38 @@ export default function Home() {
                   See Day {selectedDay} recap
                 </a>
               )}
-              {schedule
-                .filter(d => d.day === selectedDay)
-                .map(d => d.agenda)
-                .flat()
-                .filter(session => selectedTrack === "All" || session.track === selectedTrack)
-                .map(session => {
+              {filteredScheduleSessions.length === 0 && dayIsLive && (
+                <p className="text-center text-xs text-[#8E9CAE] py-6">
+                  {selectedTrack === "Past" ? "No past sessions yet." : "No upcoming sessions."}
+                </p>
+              )}
+              {filteredScheduleSessions.map(session => {
                   const isSaved = favoriteSessions.includes(session.id);
+                  const sessionStatus = getSessionStatus(selectedDay, session.time, now);
+                  const isCurrent = dayIsLive && selectedTrack !== "Past" && sessionStatus === "current";
                   return (
                     <div 
                       key={session.id}
                       id={`session-card-${session.id}`}
-                      className="rounded-xl border border-[#c4b396]/10 bg-[#121214] overflow-hidden hover:border-[#c4b396]/30 transition-all flex flex-col scroll-mt-24"
+                      className={cn(
+                        "rounded-xl border bg-[#121214] overflow-hidden transition-all flex flex-col scroll-mt-24",
+                        isCurrent
+                          ? "border-[#c4b396]/60 shadow-[0_0_20px_rgba(196,179,150,0.35)] ring-1 ring-[#c4b396]/40"
+                          : "border-[#c4b396]/10 hover:border-[#c4b396]/30"
+                      )}
                     >
                       <div className="p-4 flex-1 space-y-3">
                         {/* Header: Track & Saved Star */}
                         <div className="flex justify-between items-start">
-                          <div className="text-[8px] font-bold px-2 py-0.5 rounded-full bg-[#c4b396]/10 text-[#c4b396] border border-[#c4b396]/20 uppercase tracking-wider">
-                            Ritz-Carlton, Miami
+                          <div className="flex items-center gap-1.5 flex-wrap">
+                            <div className="text-[8px] font-bold px-2 py-0.5 rounded-full bg-[#c4b396]/10 text-[#c4b396] border border-[#c4b396]/20 uppercase tracking-wider">
+                              Ritz-Carlton, Miami
+                            </div>
+                            {isCurrent && (
+                              <div className="text-[8px] font-bold px-2 py-0.5 rounded-full bg-[#c4b396] text-[#070707] uppercase tracking-wider animate-pulse">
+                                Live now
+                              </div>
+                            )}
                           </div>
                           <div className="flex items-center gap-1.5">
                             <button 

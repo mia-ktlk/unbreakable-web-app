@@ -2147,7 +2147,6 @@ export default function Home() {
 
             <div className="grid grid-cols-1 gap-3">
               {members
-                .filter((member) => member.type === "attendee")
                 .filter((member) =>
                   matchesSearchQuery(searchQuery, member.name, member.company, member.role)
                 )

@@ -11,6 +11,8 @@ export interface ProfileOverride {
   instagram: string | null;
   facebook: string | null;
   linkedin: string | null;
+  bio: string | null;
+  photo_url: string | null;
   updated_at?: string;
 }
 
@@ -24,6 +26,8 @@ export interface ProfileUpdatePayload {
   instagram?: string;
   facebook?: string;
   linkedin?: string;
+  bio?: string;
+  photo_url?: string | null;
 }
 
 const EDITABLE_FIELDS = [
@@ -35,6 +39,7 @@ const EDITABLE_FIELDS = [
   "instagram",
   "facebook",
   "linkedin",
+  "bio",
 ] as const;
 
 export function applyProfileOverride<T extends Member>(
@@ -50,6 +55,13 @@ export function applyProfileOverride<T extends Member>(
       merged[field] = value;
     }
   }
+
+  if (override.photo_url) {
+    merged.image = override.photo_url;
+  } else if (override.photo_url === null) {
+    merged.image = undefined;
+  }
+
   return merged;
 }
 
@@ -70,7 +82,7 @@ export async function fetchProfileOverrides(): Promise<ProfileOverride[]> {
   const { data, error } = await supabase
     .from("profile_overrides")
     .select(
-      "badge_id, email, phone, website, company, role, instagram, facebook, linkedin, updated_at"
+      "badge_id, email, phone, website, company, role, instagram, facebook, linkedin, bio, photo_url, updated_at"
     );
 
   if (error) {
@@ -81,6 +93,30 @@ export async function fetchProfileOverrides(): Promise<ProfileOverride[]> {
   return data ?? [];
 }
 
+async function callProfileFunction(
+  path: string,
+  init: RequestInit
+): Promise<Record<string, unknown>> {
+  const response = await fetch(
+    `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/${path}`,
+    {
+      ...init,
+      headers: {
+        Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+        ...(init.headers ?? {}),
+      },
+    }
+  );
+
+  const result = await response.json().catch(() => ({}));
+
+  if (!response.ok) {
+    throw new Error(result.error || "Profile request failed.");
+  }
+
+  return result.data as Record<string, unknown>;
+}
+
 export async function updateProfile(
   payload: ProfileUpdatePayload
 ): Promise<ProfileOverride> {
@@ -88,23 +124,36 @@ export async function updateProfile(
     throw new Error("Profile updates are not configured.");
   }
 
-  const response = await fetch(
-    `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/update-profile`,
-    {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(payload),
-    }
-  );
+  const data = await callProfileFunction("update-profile", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
 
-  const result = await response.json().catch(() => ({}));
+  return data as unknown as ProfileOverride;
+}
 
-  if (!response.ok) {
-    throw new Error(result.error || "Failed to update profile.");
+export async function uploadProfilePhoto(
+  badgeId: string,
+  file: File
+): Promise<string> {
+  if (!isSupabaseConfigured()) {
+    throw new Error("Profile photo uploads are not configured.");
   }
 
-  return result.data as ProfileOverride;
+  const formData = new FormData();
+  formData.append("badge_id", badgeId);
+  formData.append("file", file);
+
+  const data = await callProfileFunction("upload-profile-photo", {
+    method: "POST",
+    body: formData,
+  });
+
+  const photoUrl = data.photo_url;
+  if (typeof photoUrl !== "string" || !photoUrl) {
+    throw new Error("Upload succeeded but no photo URL was returned.");
+  }
+
+  return photoUrl;
 }

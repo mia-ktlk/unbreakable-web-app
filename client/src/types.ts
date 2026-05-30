@@ -9,12 +9,12 @@ export interface Member {
   instagram?: string;
   facebook?: string;
   linkedin?: string;
+  bio?: string;
+  image?: string;
   type: string; // support attendee, speaker, panelist, mc, etc.
 }
 
 export interface Speaker extends Member {
-  image?: string;
-  bio?: string;
   sessions: string[];
 }
 

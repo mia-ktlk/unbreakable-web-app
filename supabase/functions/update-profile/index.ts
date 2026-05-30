@@ -17,6 +17,7 @@ const MAX_LENGTHS = {
   instagram: 500,
   facebook: 500,
   linkedin: 500,
+  bio: 500,
 } as const;
 
 type EditableField = keyof typeof MAX_LENGTHS;
@@ -117,11 +118,20 @@ Deno.serve(async (req) => {
       payload[field] = sanitized;
     }
 
+    if ("photo_url" in body) {
+      const photoUrl = body.photo_url;
+      if (photoUrl === null || photoUrl === "") {
+        payload.photo_url = null;
+      } else if (typeof photoUrl === "string") {
+        payload.photo_url = photoUrl.trim().slice(0, 500);
+      }
+    }
+
     const { data, error } = await supabase
       .from("profile_overrides")
       .upsert(payload, { onConflict: "badge_id" })
       .select(
-        "badge_id, email, phone, website, company, role, instagram, facebook, linkedin, updated_at"
+        "badge_id, email, phone, website, company, role, instagram, facebook, linkedin, bio, photo_url, updated_at"
       )
       .single();
 

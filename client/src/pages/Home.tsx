@@ -103,12 +103,13 @@ const speakerPlaceholderUrl = (name = "Speaker") =>
   `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(name)}&backgroundColor=121214&textColor=D4AF37`;
 
 // Temporary cutoff for day recap buttons — update before launch
-const DAY_RECAP_CUTOFF = new Date("2026-05-30");
+const DAY_RECAP_CUTOFF = new Date("2026-05-30T00:00:00-04:00");
 
-function isAfterDayRecapCutoff(): boolean {
+function isAfterDayRecapCutoff(daysToAdd: number = 1): boolean {
   const today = new Date();
-  today.setHours(0, 0, 0, 0);
+  today.setHours(0, 0, 0, 1);
   const cutoff = new Date(DAY_RECAP_CUTOFF);
+  cutoff.setDate(cutoff.getDate() + daysToAdd);
   cutoff.setHours(0, 0, 0, 0);
   return today > cutoff;
 }
@@ -1554,7 +1555,7 @@ export default function Home() {
 
             {/* SESSIONS LIST */}
             <div className="space-y-4">
-              {isAfterDayRecapCutoff() && (
+              {isAfterDayRecapCutoff(selectedDay) && (
                 <a
                   href={`https://brokenscience.org/unbreakable-recap?tab_choice=${selectedDay}`}
                   target="_blank"

@@ -15,6 +15,8 @@ create table if not exists public.profile_overrides (
   instagram text,
   facebook text,
   linkedin text,
+  bio text,
+  photo_url text,
   updated_at timestamptz not null default now()
 );
 

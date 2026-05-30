@@ -44,6 +44,7 @@ import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { Html5Qrcode } from "html5-qrcode";
 import { useRef } from "react";
 
@@ -56,8 +57,10 @@ import {
   fetchProfileOverrides,
   mergeMembersWithOverrides,
   updateProfile,
+  uploadProfilePhoto,
 } from "@/lib/profiles";
 import { hasContactDetails, MemberSocialLinks } from "@/components/MemberSocialLinks";
+import { MemberAvatar } from "@/components/MemberAvatar";
 import {
   loadAndMergeUserSavedData,
   saveUserSavedData,
@@ -139,7 +142,12 @@ export default function Home() {
     instagram: "",
     facebook: "",
     linkedin: "",
+    bio: "",
   });
+  const [profilePhotoPreview, setProfilePhotoPreview] = useState("");
+  const [profilePhotoFile, setProfilePhotoFile] = useState<File | null>(null);
+  const [profilePhotoRemoved, setProfilePhotoRemoved] = useState(false);
+  const profilePhotoInputRef = useRef<HTMLInputElement | null>(null);
 
   // Login scanner states
   const loginQrScannerRef = useRef<Html5Qrcode | null>(null);
@@ -595,8 +603,40 @@ export default function Home() {
       instagram: loggedInUser.instagram ?? "",
       facebook: loggedInUser.facebook ?? "",
       linkedin: loggedInUser.linkedin ?? "",
+      bio: loggedInUser.bio ?? "",
     });
+    setProfilePhotoPreview(loggedInUser.image ?? "");
+    setProfilePhotoFile(null);
+    setProfilePhotoRemoved(false);
     setIsEditingProfile(true);
+  };
+
+  const handleProfilePhotoChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      toast.error("Please choose a JPG, PNG, or WEBP image.");
+      return;
+    }
+
+    if (file.size > 2 * 1024 * 1024) {
+      toast.error("Photo must be 2MB or smaller.");
+      return;
+    }
+
+    setProfilePhotoFile(file);
+    setProfilePhotoRemoved(false);
+    setProfilePhotoPreview(URL.createObjectURL(file));
+  };
+
+  const handleRemoveProfilePhoto = () => {
+    setProfilePhotoFile(null);
+    setProfilePhotoPreview("");
+    setProfilePhotoRemoved(true);
+    if (profilePhotoInputRef.current) {
+      profilePhotoInputRef.current.value = "";
+    }
   };
 
   const handleSaveProfile = async () => {
@@ -604,6 +644,10 @@ export default function Home() {
 
     setIsSavingProfile(true);
     try {
+      if (profilePhotoFile) {
+        await uploadProfilePhoto(loggedInUser.id, profilePhotoFile);
+      }
+
       const saved = await updateProfile({
         badge_id: loggedInUser.id,
         email: profileForm.email,
@@ -614,6 +658,8 @@ export default function Home() {
         instagram: profileForm.instagram,
         facebook: profileForm.facebook,
         linkedin: profileForm.linkedin,
+        bio: profileForm.bio,
+        ...(profilePhotoRemoved ? { photo_url: null } : {}),
       });
 
       const updatedUser = applyProfileOverride(loggedInUser, saved);
@@ -629,6 +675,8 @@ export default function Home() {
           speaker.id === updatedUser.id ? applyProfileOverride(speaker, saved) : speaker
         )
       );
+      setProfilePhotoFile(null);
+      setProfilePhotoRemoved(false);
       setIsEditingProfile(false);
       toast.success("Profile updated successfully.");
     } catch (error) {
@@ -1973,9 +2021,7 @@ export default function Home() {
                     }}
                     className="rounded-xl border border-[#c4b396]/10 bg-[#121214] p-4 flex items-center gap-3 hover:border-[#c4b396]/30 transition-all cursor-pointer"
                   >
-                    <div className="h-10 w-10 rounded-full bg-[#c4b396]/10 border border-[#c4b396]/20 flex items-center justify-center text-[#c4b396] font-bold text-sm shrink-0">
-                      {member.name.charAt(0)}
-                    </div>
+                    <MemberAvatar member={member} className="h-10 w-10 text-sm" />
                     <div className="min-w-0 flex-1">
                       <h3 className="text-sm font-bold text-white truncate">{member.name}</h3>
                       <p className="text-[10px] text-[#8E9CAE] truncate">{member.role || member.company}</p>
@@ -2423,27 +2469,7 @@ export default function Home() {
               {scannedMember ? (
                 <div className="space-y-3 min-w-0">
                   <div className="flex gap-3 items-start min-w-0">
-                    {/* Speaker Headshot Match */}
-                    {(() => {
-                      const matchedSpeaker = speakers.find(s => s.name.toLowerCase() === scannedMember.name.toLowerCase() || (s.email && s.email.toLowerCase() === scannedMember.email?.toLowerCase()));
-                      if (matchedSpeaker) {
-                        return (
-                          <img 
-                            src={matchedSpeaker.image} 
-                            alt={scannedMember.name} 
-                            className="h-12 w-12 shrink-0 rounded-lg object-cover object-top border border-[#c4b396]/30 bg-neutral-900"
-                            onError={(e) => {
-                              (e.target as HTMLImageElement).src = `https://api.dicebear.com/7.x/initials/svg?seed=${scannedMember.name}&backgroundColor=121214&textColor=D4AF37`;
-                            }}
-                          />
-                        );
-                      }
-                      return (
-                        <div className="h-12 w-12 shrink-0 rounded-lg bg-neutral-800 flex items-center justify-center text-[#c4b396] font-bold text-sm">
-                          {scannedMember.name.charAt(0)}
-                        </div>
-                      );
-                    })()}
+                    <MemberAvatar member={scannedMember} className="h-12 w-12 rounded-lg text-sm" />
                     <div className="min-w-0 flex-1">
                       <h4 className="text-xs font-bold text-[#c4b396] break-words">{scannedMember.role}</h4>
                       <p className="text-xs text-white break-words">{scannedMember.company}</p>
@@ -2452,6 +2478,12 @@ export default function Home() {
                       {scannedMember.type}
                     </span>
                   </div>
+
+                  {scannedMember.bio && (
+                    <p className="text-[11px] text-[#8E9CAE] leading-relaxed whitespace-pre-wrap border-t border-neutral-800/60 pt-2">
+                      {scannedMember.bio}
+                    </p>
+                  )}
                   
                   <div className="pt-2 border-t border-neutral-800/60 space-y-1 text-[11px] text-[#8E9CAE] min-w-0">
                     {scannedMember.email && <p className="flex items-start gap-1.5 break-all"><Mail className="h-3 w-3 shrink-0 text-[#c4b396] mt-0.5" /> {scannedMember.email}</p>}
@@ -2513,34 +2545,7 @@ export default function Home() {
 
             <div className="rounded-xl bg-[#18181B] border border-neutral-800 p-4 space-y-3 min-w-0 overflow-hidden">
               <div className="flex gap-3 items-start min-w-0">
-                {(() => {
-                  const matchedSpeaker =
-                    speakers.find(s => s.id === selectedAttendee.id) ||
-                    speakers.find(
-                      s =>
-                        s.name.toLowerCase() === selectedAttendee.name.toLowerCase() ||
-                        (s.email &&
-                          selectedAttendee.email &&
-                          s.email.toLowerCase() === selectedAttendee.email.toLowerCase())
-                    );
-                  if (matchedSpeaker?.image) {
-                    return (
-                      <img
-                        src={matchedSpeaker.image}
-                        alt={selectedAttendee.name}
-                        className="h-12 w-12 shrink-0 rounded-lg object-cover object-top border border-[#c4b396]/30 bg-neutral-900"
-                        onError={e => {
-                          (e.target as HTMLImageElement).src = `https://api.dicebear.com/7.x/initials/svg?seed=${selectedAttendee.name}&backgroundColor=121214&textColor=D4AF37`;
-                        }}
-                      />
-                    );
-                  }
-                  return (
-                    <div className="h-12 w-12 shrink-0 rounded-lg bg-neutral-800 flex items-center justify-center text-[#c4b396] font-bold text-sm">
-                      {selectedAttendee.name.charAt(0)}
-                    </div>
-                  );
-                })()}
+                <MemberAvatar member={selectedAttendee} className="h-12 w-12 rounded-lg text-sm" />
                 <div className="min-w-0 flex-1">
                   <h4 className="text-xs font-bold text-[#c4b396] break-words">
                     {selectedAttendee.role || "Attendee"}
@@ -2553,6 +2558,12 @@ export default function Home() {
                   {selectedAttendee.type}
                 </span>
               </div>
+
+              {selectedAttendee.bio && (
+                <p className="text-[11px] text-[#8E9CAE] leading-relaxed whitespace-pre-wrap border-t border-neutral-800/60 pt-2">
+                  {selectedAttendee.bio}
+                </p>
+              )}
 
               <div className="pt-2 border-t border-neutral-800/60 space-y-1 text-[11px] text-[#8E9CAE] min-w-0">
                 {selectedAttendee.email && (
@@ -2940,9 +2951,7 @@ export default function Home() {
             <>
               <SheetHeader className="px-0 pt-2 pb-4 border-b border-[#c4b396]/10">
                 <div className="flex items-center gap-4 pr-10">
-                  <div className="h-14 w-14 rounded-full bg-[#c4b396]/15 border border-[#c4b396]/30 flex items-center justify-center text-[#c4b396] font-bold text-xl shrink-0">
-                    {loggedInUser.name.charAt(0)}
-                  </div>
+                  <MemberAvatar member={loggedInUser} className="h-14 w-14 text-xl" />
                   <div className="space-y-1 text-left flex-1 min-w-0">
                     <SheetTitle className="text-white font-serif-luxury text-lg">{loggedInUser.name}</SheetTitle>
                     <SheetDescription className="text-[#8E9CAE] text-xs">
@@ -2970,6 +2979,66 @@ export default function Home() {
                   </p>
 
                   <div className="space-y-3">
+                    <div className="space-y-2">
+                      <Label className="text-[9px] font-bold text-[#8E9CAE] uppercase tracking-wider">
+                        Profile Photo
+                      </Label>
+                      <div className="flex items-center gap-4">
+                        {profilePhotoPreview ? (
+                          <img
+                            src={profilePhotoPreview}
+                            alt="Profile preview"
+                            className="h-16 w-16 rounded-full object-cover border border-[#c4b396]/30"
+                          />
+                        ) : (
+                          <MemberAvatar member={{ name: loggedInUser.name }} className="h-16 w-16 text-lg" />
+                        )}
+                        <div className="flex flex-col gap-2 flex-1">
+                          <input
+                            ref={profilePhotoInputRef}
+                            type="file"
+                            accept="image/jpeg,image/png,image/webp"
+                            className="hidden"
+                            onChange={handleProfilePhotoChange}
+                          />
+                          <Button
+                            type="button"
+                            variant="outline"
+                            onClick={() => profilePhotoInputRef.current?.click()}
+                            className="border-[#c4b396]/30 text-[#c4b396] hover:bg-[#c4b396]/10 h-9 text-[10px] font-bold uppercase tracking-wider"
+                          >
+                            Choose Photo
+                          </Button>
+                          {(profilePhotoPreview || loggedInUser.image) && !profilePhotoRemoved && (
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              onClick={handleRemoveProfilePhoto}
+                              className="h-8 text-[10px] text-[#8E9CAE] hover:text-red-400"
+                            >
+                              Remove Photo
+                            </Button>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <Label htmlFor="profile-bio" className="text-[9px] font-bold text-[#8E9CAE] uppercase tracking-wider">
+                        Bio
+                      </Label>
+                      <Textarea
+                        id="profile-bio"
+                        value={profileForm.bio}
+                        onChange={(e) => setProfileForm((prev) => ({ ...prev, bio: e.target.value }))}
+                        placeholder="Tell others a little about yourself..."
+                        rows={4}
+                        maxLength={500}
+                        className="bg-[#070707] border-[#c4b396]/20 text-white text-xs resize-none"
+                      />
+                      <p className="text-[9px] text-[#8E9CAE] text-right">{profileForm.bio.length}/500</p>
+                    </div>
+
                     <div className="space-y-1.5">
                       <Label htmlFor="profile-role" className="text-[9px] font-bold text-[#8E9CAE] uppercase tracking-wider">
                         Role / Title
@@ -3116,6 +3185,13 @@ export default function Home() {
                     <div className="rounded-xl border border-[#c4b396]/10 bg-[#070707] p-3 space-y-1">
                       <p className="text-[9px] font-bold text-[#8E9CAE] uppercase tracking-wider">Company</p>
                       <p className="text-sm text-white">{loggedInUser.company || loggedInUser.role}</p>
+                    </div>
+                  )}
+
+                  {loggedInUser.bio && (
+                    <div className="rounded-xl border border-[#c4b396]/10 bg-[#070707] p-3 space-y-1">
+                      <p className="text-[9px] font-bold text-[#8E9CAE] uppercase tracking-wider">Bio</p>
+                      <p className="text-xs text-[#8E9CAE] leading-relaxed whitespace-pre-wrap">{loggedInUser.bio}</p>
                     </div>
                   )}
 

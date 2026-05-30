@@ -2879,7 +2879,7 @@ export default function Home() {
       {/* 6. SPONSOR DETAIL DIALOG */}
       {selectedSponsor && (
         <Dialog open={!!selectedSponsor} onOpenChange={() => setSelectedSponsor(null)}>
-          <DialogContent className="max-w-md bg-[#121214] border-[#c4b396]/30 text-[#F8FAFC] p-6 space-y-4">
+          <DialogContent className="max-w-md bg-[#121214] border-[#c4b396]/30 text-[#F8FAFC] p-6 pt-8 space-y-4">
             {/* Screen Reader Accessible Title */}
             <div className="sr-only">
               <DialogTitle>{selectedSponsor.name}</DialogTitle>

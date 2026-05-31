@@ -4,7 +4,8 @@
     "name": "What is MetFix",
     "url": "https://whatis.metfix.org/",
     "image": "/images/courses/what-is-metfix.webp",
-    "comingSoon": false
+    "comingSoon": false,
+    "free": true
   },
   {
     "id": "course-2",

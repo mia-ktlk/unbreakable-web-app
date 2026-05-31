@@ -56,6 +56,7 @@ export interface Course {
   url: string;
   image: string;
   comingSoon?: boolean;
+  free?: boolean;
 }
 
 export interface Exhibitor {

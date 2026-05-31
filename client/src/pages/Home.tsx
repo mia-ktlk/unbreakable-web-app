@@ -51,6 +51,10 @@ import { useRef } from "react";
 // Import types
 import { Member, Speaker, Session, DaySchedule, Sponsor, Exhibitor, Course, ScanRecord } from "../types";
 import { matchesSearchQuery } from "@/lib/search";
+import {
+  findSpeakerByScheduleName,
+  speakerHasPhoto,
+} from "@/lib/speakerMatch";
 import { cn, publicUrl } from "@/lib/utils";
 import { buildVCard } from "@/lib/vcard";
 import {
@@ -1236,6 +1240,11 @@ export default function Home() {
                         <BookOpen className="h-6 w-6 text-[#c4b396]/40" />
                         <span className="text-[8px] uppercase tracking-wider text-[#8E9CAE]/60">Image coming soon</span>
                       </div>
+                      {course.free && (
+                        <span className="absolute top-2 right-2 text-[7px] font-black px-1.5 py-0.5 rounded uppercase tracking-wider bg-emerald-600 text-white shadow-sm">
+                          Free
+                        </span>
+                      )}
                       {course.comingSoon && (
                         <span className="absolute top-2 right-2 text-[7px] font-black px-1.5 py-0.5 rounded uppercase tracking-wider bg-[#c4b396] text-[#070707] shadow-sm">
                           Coming Soon
@@ -1689,7 +1698,7 @@ export default function Home() {
                             <div className="flex flex-wrap gap-1 items-center">
                               <span className="text-[9px] text-[#8E9CAE] mr-1">Speakers:</span>
                               {session.speakers.map(spName => {
-                                const matchedSp = speakers.find(s => s.name === spName);
+                                const matchedSp = findSpeakerByScheduleName(speakers, spName);
                                 return (
                                   <span 
                                     key={spName}
@@ -2578,7 +2587,8 @@ export default function Home() {
                 <h4 className="text-[10px] font-bold uppercase tracking-widest text-[#c4b396]">Session Speakers</h4>
                 <div className="grid grid-cols-1 gap-2">
                   {selectedSession.speakers.map(spName => {
-                    const matchedSp = speakers.find(s => s.name === spName);
+                    const matchedSp = findSpeakerByScheduleName(speakers, spName);
+                    const showPhoto = matchedSp && speakerHasPhoto(matchedSp);
                     return (
                       <div 
                         key={spName}
@@ -2591,13 +2601,13 @@ export default function Home() {
                         className={`rounded-lg bg-[#18181B] border border-neutral-800 p-2 flex items-center justify-between ${matchedSp ? 'cursor-pointer hover:border-[#c4b396]/40' : ''}`}
                       >
                         <div className="flex items-center gap-2.5">
-                          {matchedSp && (
+                          {showPhoto && (
                             <img 
                               src={matchedSp.image} 
                               alt={spName} 
-                              className="h-8 w-8 rounded-full object-cover object-top"
+                              className="h-8 w-8 rounded-full object-cover object-top border border-[#c4b396]/20"
                               onError={(e) => {
-                                (e.target as HTMLImageElement).src = `https://api.dicebear.com/7.x/initials/svg?seed=${spName}&backgroundColor=121214&textColor=D4AF37`;
+                                (e.target as HTMLImageElement).style.display = "none";
                               }}
                             />
                           )}

@@ -1,8 +1,9 @@
 import { cn } from "@/lib/utils";
+import { getSpeakerInitialsSeed } from "@/lib/speakerMatch";
 import { Member } from "@/types";
 
 const placeholderUrl = (name: string) =>
-  `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(name)}&backgroundColor=121214&textColor=D4AF37`;
+  `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(getSpeakerInitialsSeed(name))}&backgroundColor=121214&textColor=D4AF37`;
 
 export function getMemberPhotoUrl(member: Pick<Member, "name"> & { image?: string }): string {
   return member.image || placeholderUrl(member.name);

@@ -53,6 +53,8 @@ import { Member, Speaker, Session, DaySchedule, Sponsor, Exhibitor, Course, Scan
 import { matchesSearchQuery } from "@/lib/search";
 import {
   findSpeakerByScheduleName,
+  getSessionsForSpeaker,
+  getSpeakerInitialsSeed,
   speakerHasPhoto,
 } from "@/lib/speakerMatch";
 import { cn, publicUrl } from "@/lib/utils";
@@ -107,7 +109,7 @@ import {
 } from "@/lib/userData";
 
 const speakerPlaceholderUrl = (name = "Speaker") =>
-  `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(name)}&backgroundColor=121214&textColor=D4AF37`;
+  `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(getSpeakerInitialsSeed(name))}&backgroundColor=121214&textColor=D4AF37`;
 
 // Temporary cutoff for day recap buttons — update before launch
 const DAY_RECAP_CUTOFF = new Date("2026-05-30T00:00:00-04:00");
@@ -147,6 +149,26 @@ export default function Home() {
   const navigateToSpeaker = (speakerId: string) => {
     // Pass currentTab as a query param so the back button knows exactly where we came from
     setLocation(`/speaker/${speakerId}?from=${currentTab}`);
+  };
+
+  const navigateToSession = (session: Session) => {
+    const dayObj = schedule.find((d) => d.agenda.some((a) => a.id === session.id));
+    if (dayObj) {
+      setSelectedDay(dayObj.day);
+    }
+    setSelectedTrack("All");
+    setLocation("/schedule");
+    setSelectedSession(session);
+    setTimeout(() => {
+      const cardEl = document.getElementById(`session-card-${session.id}`);
+      if (cardEl) {
+        cardEl.scrollIntoView({ behavior: "smooth", block: "center" });
+        cardEl.classList.add("border-[#c4b396]");
+        setTimeout(() => {
+          cardEl.classList.remove("border-[#c4b396]");
+        }, 2000);
+      }
+    }, 300);
   };
 
   // Data states
@@ -1826,6 +1848,7 @@ export default function Home() {
               }
 
               const isSaved = favoriteSpeakers.includes(speaker.id);
+              const speakerSessions = getSessionsForSpeaker(speaker, schedule);
 
               return (
                 <div className="space-y-6 animate-fade-in pb-8">
@@ -1921,55 +1944,29 @@ export default function Home() {
                       <div className="space-y-2 pt-2">
                         <h4 className="text-[10px] font-bold uppercase tracking-widest text-[#c4b396]">Sessions & Lectures</h4>
                         <div className="space-y-2">
-                          {speaker.sessions.map(sTitle => {
-                            const sMatched = schedule.map(d => d.agenda).flat().find(s => s.title === sTitle);
-                            return (
-                              <div 
-                                key={sTitle}
-                                onClick={() => {
-                                  if (sMatched) {
-                                    // 1. Find which day this session belongs to
-                                    const dayObj = schedule.find(d => d.agenda.some(a => a.id === sMatched.id));
-                                    if (dayObj) {
-                                      setSelectedDay(dayObj.day);
-                                    }
-                                    // 2. Clear track filter to make sure it's visible
-                                    setSelectedTrack("All");
-                                    // 3. Navigate to schedule tab
-                                    setLocation("/schedule");
-                                    // 4. Open the session details modal
-                                    setSelectedSession(sMatched);
-                                    // 5. Scroll to the card after tab transitions
-                                    setTimeout(() => {
-                                      const cardEl = document.getElementById(`session-card-${sMatched.id}`);
-                                      if (cardEl) {
-                                        cardEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                                        // Highlight card temporarily
-                                        cardEl.classList.add('border-[#c4b396]');
-                                        setTimeout(() => {
-                                          cardEl.classList.remove('border-[#c4b396]');
-                                        }, 2000);
-                                      }
-                                    }, 300);
-                                  }
-                                }}
-                                className={`p-3 rounded-xl bg-[#18181B] border border-neutral-800 text-left ${sMatched ? 'cursor-pointer hover:border-[#c4b396]/40 hover:bg-[#1C1C1F]' : ''}`}
+                          {speakerSessions.length === 0 ? (
+                            <p className="text-[10px] text-[#8E9CAE]/60 italic">No sessions scheduled.</p>
+                          ) : (
+                            speakerSessions.map(({ session, day }) => (
+                              <button
+                                key={session.id}
+                                type="button"
+                                onClick={() => navigateToSession(session)}
+                                className="w-full p-3 rounded-xl bg-[#18181B] border border-neutral-800 text-left cursor-pointer hover:border-[#c4b396]/40 hover:bg-[#1C1C1F] transition-colors"
                               >
-                                <h5 className="text-xs font-bold text-white line-clamp-2 leading-snug">{sTitle}</h5>
-                                {sMatched && (
-                                  <div className="flex gap-2 text-[10px] text-[#8E9CAE] mt-1.5 items-center">
-                                    <span className="flex items-center gap-1">
-                                      <Clock className="h-3.5 w-3.5 text-[#c4b396]" /> Day {schedule.findIndex(d => d.agenda.some(a => a.id === sMatched.id)) + 1} • {sMatched.time}
-                                    </span>
-                                    <span>•</span>
-                                    <span className="flex items-center gap-1">
-                                      <MapPin className="h-3.5 w-3.5 text-[#c4b396]" /> {sMatched.room}
-                                    </span>
-                                  </div>
-                                )}
-                              </div>
-                            );
-                          })}
+                                <h5 className="text-xs font-bold text-white line-clamp-2 leading-snug">{session.title}</h5>
+                                <div className="flex gap-2 text-[10px] text-[#8E9CAE] mt-1.5 items-center">
+                                  <span className="flex items-center gap-1">
+                                    <Clock className="h-3.5 w-3.5 text-[#c4b396]" /> Day {day} • {session.time}
+                                  </span>
+                                  <span>•</span>
+                                  <span className="flex items-center gap-1">
+                                    <MapPin className="h-3.5 w-3.5 text-[#c4b396]" /> {session.room}
+                                  </span>
+                                </div>
+                              </button>
+                            ))
+                          )}
                         </div>
                       </div>
                     </div>

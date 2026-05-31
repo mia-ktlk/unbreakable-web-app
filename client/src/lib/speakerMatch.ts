@@ -1,4 +1,4 @@
-import type { Speaker } from "../types";
+import type { DaySchedule, Session, Speaker } from "../types";
 
 /** Schedule display names that differ from speakers.json canonical names. */
 const SCHEDULE_NAME_ALIASES: Record<string, string> = {
@@ -41,4 +41,40 @@ export function findSpeakerByScheduleName(
 
 export function speakerHasPhoto(speaker: Pick<Speaker, "image">): boolean {
   return typeof speaker.image === "string" && speaker.image.trim().length > 0;
+}
+
+/** First + second name word for avatar initials (ignores titles and credentials). */
+export function getSpeakerInitialsSeed(name: string): string {
+  let cleaned = name.trim();
+  cleaned = cleaned.replace(NAME_PREFIX_RE, "");
+  cleaned = cleaned.replace(SUFFIX_AFTER_COMMA_RE, "");
+  cleaned = cleaned.replace(/[.,]/g, " ");
+  const words = cleaned.split(/\s+/).filter(Boolean);
+  if (words.length >= 2) {
+    return `${words[0]} ${words[1]}`;
+  }
+  return words[0] ?? name;
+}
+
+export function scheduleSpeakerMatches(
+  speaker: Speaker,
+  scheduleName: string
+): boolean {
+  return findSpeakerByScheduleName([speaker], scheduleName) !== undefined;
+}
+
+/** Sessions from schedule.json where this speaker appears. */
+export function getSessionsForSpeaker(
+  speaker: Speaker,
+  schedule: DaySchedule[]
+): Array<{ session: Session; day: number }> {
+  const results: Array<{ session: Session; day: number }> = [];
+  for (const daySchedule of schedule) {
+    for (const session of daySchedule.agenda) {
+      if (session.speakers.some((name) => scheduleSpeakerMatches(speaker, name))) {
+        results.push({ session, day: daySchedule.day });
+      }
+    }
+  }
+  return results;
 }

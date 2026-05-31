@@ -227,6 +227,7 @@ export default function Home() {
   const [selectedScanDetail, setSelectedScanDetail] = useState<ScanRecord | null>(null);
   const [selectedAttendee, setSelectedAttendee] = useState<Member | null>(null);
   const [feedbackOpen, setFeedbackOpen] = useState(false);
+  const [sponsorInquiryOpen, setSponsorInquiryOpen] = useState(false);
 
   const cloudSyncTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -3022,10 +3023,27 @@ export default function Home() {
               </div>
             </div>
 
-            <div className="pt-2 border-t border-neutral-800 flex gap-2">
+            <div className="pt-2 border-t border-neutral-800 flex flex-col gap-2">
+              {selectedSponsor.inquiryEnabled && (
+                <Button
+                  type="button"
+                  onClick={() => {
+                    setSponsorInquiryOpen(true);
+                    setSelectedSponsor(null);
+                  }}
+                  className="w-full bg-[#c4b396] hover:bg-[#c4b396]/80 text-[#070707] font-bold text-xs uppercase tracking-wider h-10 rounded-lg"
+                >
+                  Inquire
+                </Button>
+              )}
               <Button 
                 onClick={() => toggleFavoriteSponsor(selectedSponsor.id)}
-                className="flex-1 bg-[#c4b396] hover:bg-[#c4b396]/80 text-[#070707] font-bold text-xs uppercase tracking-wider h-10 rounded-lg"
+                variant={selectedSponsor.inquiryEnabled ? "outline" : undefined}
+                className={
+                  selectedSponsor.inquiryEnabled
+                    ? "w-full border-[#c4b396]/30 text-[#c4b396] hover:bg-[#c4b396]/10 font-bold text-xs uppercase tracking-wider h-10 rounded-lg"
+                    : "flex-1 bg-[#c4b396] hover:bg-[#c4b396]/80 text-[#070707] font-bold text-xs uppercase tracking-wider h-10 rounded-lg"
+                }
               >
                 {favoriteSponsors.includes(selectedSponsor.id) ? "Remove from Saved" : "Save Sponsor"}
               </Button>
@@ -3033,6 +3051,129 @@ export default function Home() {
           </DialogContent>
         </Dialog>
       )}
+
+      {/* SPONSOR INQUIRY DIALOG (Dr Luke P) */}
+      <Dialog
+        open={sponsorInquiryOpen}
+        onOpenChange={(open) => {
+          setSponsorInquiryOpen(open);
+        }}
+      >
+        <DialogContent className="max-w-md w-[90vw] rounded-2xl border border-[#c4b396]/20 bg-[#0A0A0A] p-6 text-white shadow-2xl">
+          <DialogTitle className="text-xl font-bold font-serif-luxury text-white tracking-wide flex items-center gap-2">
+            <Mail className="h-5 w-5 text-[#c4b396]" /> Inquire with Dr Luke P
+          </DialogTitle>
+          <DialogDescription className="text-xs text-[#8E9CAE] mt-1 leading-relaxed">
+            Send Dr Luke an inquiry about a blood work panel, nutrition, or health coaching.
+          </DialogDescription>
+
+          <form
+            action="https://formspree.io/f/mnjrrbog"
+            method="POST"
+            onSubmit={async (e) => {
+              e.preventDefault();
+              const form = e.currentTarget;
+              const data = new FormData(form);
+              const submitButton = form.querySelector("button[type='submit']") as HTMLButtonElement;
+              if (submitButton) submitButton.disabled = true;
+
+              try {
+                const response = await fetch(form.action, {
+                  method: form.method,
+                  body: data,
+                  headers: { Accept: "application/json" },
+                });
+
+                if (response.ok) {
+                  toast.success("Inquiry sent! Dr Luke will be in touch.");
+                  form.reset();
+                  setSponsorInquiryOpen(false);
+                } else {
+                  const result = await response.json().catch(() => ({}));
+                  if (result.errors) {
+                    toast.error(result.errors.map((error: { message: string }) => error.message).join(", "));
+                  } else {
+                    toast.error("Oops! There was a problem submitting your inquiry.");
+                  }
+                }
+              } catch {
+                toast.error("Oops! There was a problem submitting your inquiry.");
+              } finally {
+                if (submitButton) submitButton.disabled = false;
+              }
+            }}
+            className="space-y-4 mt-4"
+          >
+            <input type="hidden" name="_subject" value="Dr Luke P - Summit Inquiry" />
+            <input type="hidden" name="sponsor" value="Dr Luke P Metabolic Health" />
+            <input type="hidden" name="form_type" value="sponsor_inquiry" />
+
+            <div className="space-y-1.5">
+              <label htmlFor="inquiry-email" className="text-[10px] font-bold uppercase tracking-widest text-[#c4b396]">
+                Your Email Address
+              </label>
+              <Input
+                id="inquiry-email"
+                type="email"
+                name="email"
+                placeholder="you@example.com"
+                required
+                className="bg-[#121214] border-neutral-800 focus:border-[#c4b396] text-white rounded-xl h-10 text-xs"
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <label htmlFor="inquiry-type" className="text-[10px] font-bold uppercase tracking-widest text-[#c4b396]">
+                I&apos;m interested in
+              </label>
+              <select
+                id="inquiry-type"
+                name="inquiry_type"
+                required
+                defaultValue=""
+                className="w-full bg-[#121214] border border-neutral-800 focus:border-[#c4b396] focus:ring-1 focus:ring-[#c4b396] text-white rounded-xl h-10 px-3 text-xs outline-none transition-all"
+              >
+                <option value="" disabled>
+                  Select a topic...
+                </option>
+                <option value="Blood Work Panel">Blood Work Panel</option>
+                <option value="Nutrition">Nutrition</option>
+                <option value="Health Coaching">Health Coaching</option>
+              </select>
+            </div>
+
+            <div className="space-y-1.5">
+              <label htmlFor="inquiry-message" className="text-[10px] font-bold uppercase tracking-widest text-[#c4b396]">
+                Message <span className="text-[#8E9CAE] font-normal normal-case">(optional)</span>
+              </label>
+              <textarea
+                id="inquiry-message"
+                name="message"
+                placeholder="Share any details or questions for Dr Luke..."
+                rows={4}
+                className="w-full bg-[#121214] border border-neutral-800 focus:border-[#c4b396] focus:ring-1 focus:ring-[#c4b396] text-white rounded-xl p-3 text-xs outline-none transition-all resize-none"
+              />
+            </div>
+
+            <div className="pt-2 flex gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setSponsorInquiryOpen(false)}
+                className="flex-1 border-neutral-800 text-[#8E9CAE] hover:text-white hover:bg-white/5 h-10 rounded-lg text-xs font-bold uppercase tracking-wider cursor-pointer"
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                className="flex-1 bg-[#c4b396] hover:bg-[#c4b396]/80 text-[#070707] h-10 rounded-lg text-xs font-bold uppercase tracking-wider cursor-pointer"
+              >
+                Send Inquiry
+              </Button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
 
       {/* FEEDBACK / QUESTIONS DIALOG */}
       <Dialog open={feedbackOpen} onOpenChange={setFeedbackOpen}>
